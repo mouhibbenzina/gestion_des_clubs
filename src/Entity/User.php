@@ -53,10 +53,17 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: ClubMember::class, mappedBy: 'user')]
     private Collection $clubMembers;
 
+    /**
+     * @var Collection<int, Club>
+     */
+    #[ORM\OneToMany(targetEntity: Club::class, mappedBy: 'proposedBy')]
+    private Collection $clubs;
+
     public function __construct()
     {
         $this->participations = new ArrayCollection();
         $this->clubMembers = new ArrayCollection();
+        $this->clubs = new ArrayCollection();
     }
 
     // ── Getters / Setters ──────────────────────────────────────
@@ -141,6 +148,36 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($clubMember->getUser() === $this) {
                 $clubMember->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Club>
+     */
+    public function getClubs(): Collection
+    {
+        return $this->clubs;
+    }
+
+    public function addClub(Club $club): static
+    {
+        if (!$this->clubs->contains($club)) {
+            $this->clubs->add($club);
+            $club->setProposedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClub(Club $club): static
+    {
+        if ($this->clubs->removeElement($club)) {
+            // set the owning side to null (unless already changed)
+            if ($club->getProposedBy() === $this) {
+                $club->setProposedBy(null);
             }
         }
 
