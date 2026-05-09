@@ -47,9 +47,16 @@ class Club
     #[ORM\OneToMany(targetEntity: Evenement::class, mappedBy: 'club')]
     private Collection $evenements;
 
+    /**
+     * @var Collection<int, ClubMember>
+     */
+    #[ORM\OneToMany(targetEntity: ClubMember::class, mappedBy: 'club')]
+    private Collection $clubMembers;
+
     public function __construct()
     {
         $this->evenements = new ArrayCollection();
+        $this->clubMembers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -177,6 +184,36 @@ class Club
             // set the owning side to null (unless already changed)
             if ($evenement->getClub() === $this) {
                 $evenement->setClub(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ClubMember>
+     */
+    public function getClubMembers(): Collection
+    {
+        return $this->clubMembers;
+    }
+
+    public function addClubMember(ClubMember $clubMember): static
+    {
+        if (!$this->clubMembers->contains($clubMember)) {
+            $this->clubMembers->add($clubMember);
+            $clubMember->setClub($this);
+        }
+
+        return $this;
+    }
+
+    public function removeClubMember(ClubMember $clubMember): static
+    {
+        if ($this->clubMembers->removeElement($clubMember)) {
+            // set the owning side to null (unless already changed)
+            if ($clubMember->getClub() === $this) {
+                $clubMember->setClub(null);
             }
         }
 
