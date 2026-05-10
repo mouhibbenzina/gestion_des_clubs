@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class ClubType extends AbstractType
 {
@@ -17,7 +18,10 @@ class ClubType extends AbstractType
             ->add('name')
             ->add('description')
             ->add('domain')
-            ->add('logo')
+            ->add('logo', FileType::class, [
+                'required' => true,
+                'mapped' => false,
+            ])
             ->add('website')
             ->add('status')
             ->add('createdAt', null, [

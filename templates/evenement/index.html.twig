@@ -1,49 +1,343 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Evenement index{% endblock %}
+{% block title %}Événements ISET Zaghouan{% endblock %}
 
 {% block body %}
-    <h1>Evenement index</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>NomEvenement</th>
-                <th>DateDebut</th>
-                <th>DateFin</th>
-                <th>Lieu</th>
-                <th>Description</th>
-                <th>Image</th>
-                <th>Status</th>
-                <th>CreatedAt</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for evenement in evenements %}
-            <tr>
-                <td>{{ evenement.id }}</td>
-                <td>{{ evenement.nomEvenement }}</td>
-                <td>{{ evenement.dateDebut ? evenement.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ evenement.dateFin ? evenement.dateFin|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ evenement.lieu }}</td>
-                <td>{{ evenement.description }}</td>
-                <td>{{ evenement.image }}</td>
-                <td>{{ evenement.status }}</td>
-                <td>{{ evenement.createdAt ? evenement.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}">show</a>
-                    <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="10">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+{% include 'navbar/navbar.html.twig' %}
 
-    <a href="{{ path('app_evenement_new') }}">Create new</a>
+<div class="ev-page py-4">
+    <div class="container">
+
+        <!-- HERO -->
+        <div class="hero-section mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-8">
+                    <span class="hero-badge">Événements</span>
+                    <h1 class="hero-title mt-2">Événements de l'ISET Zaghouan</h1>
+                    <p class="hero-text mt-3">
+                        Découvrez les événements organisés par les clubs étudiants.
+                        Participez, apprenez et vivez des moments inoubliables.
+                    </p>
+                    <div class="mt-3">
+                        <a href="{{ path('app_evenement_new') }}" class="hero-btn">
+                            + Créer un événement
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="hero-stats">
+                        <div class="stat-box">
+                            <div class="stat-num">{{ evenements|length }}</div>
+                            <div class="stat-lbl">Événements</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num">—</div>
+                            <div class="stat-lbl">À venir</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num">—</div>
+                            <div class="stat-lbl">Participants</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EVENTS GRID -->
+        <div class="row g-4">
+
+            {% for evenement in evenements %}
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="ev-card h-100">
+
+                        <div class="ev-banner">
+                            {% if evenement.image %}
+                                <img src="{{ asset('uploads/events/' ~ evenement.image) }}" alt="{{ evenement.nomEvenement }}">
+                            {% else %}
+                                <div class="default-banner">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                </div>
+                            {% endif %}
+                            <div class="overlay"></div>
+
+                            <div class="ev-date-badge">
+                                <div class="ev-day">{{ evenement.dateDebut ? evenement.dateDebut|date('d') : '—' }}</div>
+                                <div class="ev-month">{{ evenement.dateDebut ? evenement.dateDebut|date('M') : '' }}</div>
+                            </div>
+
+                            <div class="ev-status-badge">
+                                {% if evenement.status == 'actif' or evenement.status == 'Actif' or evenement.status == true %}
+                                    <span class="status active">Actif</span>
+                                {% else %}
+                                    <span class="status inactive">Terminé</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="ev-content">
+                            <h3 class="ev-title">{{ evenement.nomEvenement }}</h3>
+
+                            <div class="ev-meta">
+                                <div class="ev-meta-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    {{ evenement.lieu }}
+                                </div>
+                                <div class="ev-meta-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    {{ evenement.dateDebut ? evenement.dateDebut|date('H:i') : '—' }}
+                                    {% if evenement.dateFin %} → {{ evenement.dateFin|date('H:i') }}{% endif %}
+                                </div>
+                            </div>
+
+                            <p class="ev-description">
+                                {{ evenement.description|length > 110
+                                    ? evenement.description|slice(0,110) ~ '...'
+                                    : evenement.description }}
+                            </p>
+
+                            <div class="ev-actions">
+                                <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" class="view-btn">
+                                    Voir l'événement
+                                </a>
+                                <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}" class="edit-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            {% else %}
+
+                <div class="col-12">
+                    <div class="empty-box text-center">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(168,85,247,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
+                        <h2 class="fw-bold text-white mb-3">Aucun événement disponible</h2>
+                        <p class="text-light opacity-75 mb-0">Les événements apparaîtront ici une fois ajoutés.</p>
+                    </div>
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+</div>
+
+<style>
+
+body {
+    min-height: 100vh;
+    overflow: hidden;
+    background-color: #292222;
+    position: relative;
+}
+
+/* Background wave image */
+body::before {
+    content: '';
+    position: fixed;
+
+    inset: 0;
+
+    background-image: url('/background/background.jpg');
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+
+    opacity: 0.4;
+
+    filter: blur(2px);
+
+    z-index: -2;
+    pointer-events: none;
+}
+
+.ev-page { min-height: 100vh; }
+
+.hero-section {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(14px);
+    border-radius: 24px;
+    padding: 32px 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    width: 240px; height: 240px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+    top: -100px; right: -80px;
+    pointer-events: none;
+}
+
+.hero-badge {
+    background: linear-gradient(135deg, #7b2ff7, #f107a3);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.hero-title {
+    color: white;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.hero-text {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: 0;
+}
+
+.hero-btn {
+    display: inline-block;
+    padding: 10px 22px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #7b2ff7, #f107a3);
+    color: white;
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+.hero-btn:hover { opacity: 0.88; color: white; transform: scale(1.02); }
+
+.hero-stats {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.stat-box {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 18px 20px;
+    text-align: center;
+    flex: 1;
+}
+
+.stat-num { font-size: 1.8rem; font-weight: 800; color: white; line-height: 1; }
+.stat-lbl { font-size: 0.75rem; color: rgba(255,255,255,0.55); margin-top: 4px; font-weight: 500; }
+
+/* EVENT CARD */
+.ev-card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: 0.3s ease;
+}
+.ev-card:hover { transform: translateY(-6px); border-color: rgba(168,85,247,0.4); }
+
+.ev-banner {
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #3d1a7a, #7b2ff7);
+}
+.ev-banner img { width: 100%; height: 100%; object-fit: cover; }
+
+.default-banner {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.05));
+}
+
+.ev-date-badge {
+    position: absolute;
+    top: 12px; left: 14px;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 6px 12px;
+    text-align: center;
+    z-index: 2;
+}
+.ev-day { font-size: 1.3rem; font-weight: 800; color: white; line-height: 1; }
+.ev-month { font-size: 0.7rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; }
+
+.ev-status-badge {
+    position: absolute;
+    top: 12px; right: 14px;
+    z-index: 2;
+}
+
+.status { padding: 4px 11px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+.status.active { background: rgba(25,135,84,0.3); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+.status.inactive { background: rgba(220,53,69,0.25); color: #ff6b81; border: 1px solid rgba(255,107,129,0.2); }
+
+.ev-content { padding: 1.25rem; color: white; }
+.ev-title { font-weight: 700; font-size: 1rem; margin-bottom: 10px; }
+
+.ev-meta { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+.ev-meta-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.82rem; color: rgba(255,255,255,0.6);
+}
+.ev-meta-item svg { flex-shrink: 0; color: #a855f7; }
+
+.ev-description {
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6; font-size: 0.88rem;
+    min-height: 65px;
+    margin-bottom: 14px;
+}
+
+.ev-actions { display: flex; gap: 8px; }
+
+.view-btn {
+    flex: 1;
+    display: block; text-align: center;
+    padding: 10px; border-radius: 12px;
+    text-decoration: none; font-weight: 700;
+    font-size: 0.85rem; color: white;
+    background: linear-gradient(135deg, #7b2ff7, #f107a3);
+    transition: 0.2s ease;
+}
+.view-btn:hover { opacity: 0.88; color: white; }
+
+.edit-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+    text-decoration: none; flex-shrink: 0;
+    transition: 0.2s ease;
+}
+.edit-btn:hover { background: rgba(168,85,247,0.2); color: white; border-color: #a855f7; }
+
+.empty-box {
+    padding: 60px 20px; border-radius: 20px;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.empty-icon { margin-bottom: 16px; }
+
+</style>
+
 {% endblock %}

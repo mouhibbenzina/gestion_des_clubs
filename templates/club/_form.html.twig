@@ -1,4 +1,168 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+
+<div class="fields-grid">
+
+    <div class="field-group">
+        {{ form_label(form.name) }}
+        {{ form_widget(form.name) }}
+        {{ form_errors(form.name) }}
+    </div>
+
+    <div class="field-group">
+        {{ form_label(form.domain) }}
+        {{ form_widget(form.domain) }}
+        {{ form_errors(form.domain) }}
+    </div>
+
+    <div class="field-group">
+        {{ form_label(form.logo) }}
+        {{ form_widget(form.logo) }}
+        {{ form_errors(form.logo) }}
+    </div>
+
+    <div class="field-group">
+        {{ form_label(form.website) }}
+        {{ form_widget(form.website) }}
+        {{ form_errors(form.website) }}
+    </div>
+
+    <div class="field-group field-group--full">
+        {{ form_label(form.description) }}
+        {{ form_widget(form.description) }}
+        {{ form_errors(form.description) }}
+    </div>
+
+    <div class="field-group field-group--full">
+        {{ form_label(form.status) }}
+        {{ form_widget(form.status) }}
+        {{ form_errors(form.status) }}
+    </div>
+
+    <div class="field-group">
+    {{ form_label(form.createdAt) }}
+    {{ form_widget(form.createdAt) }}
+    {{ form_errors(form.createdAt) }}
+</div>
+
+<div class="field-group">
+    {{ form_label(form.proposedBy) }}
+    {{ form_widget(form.proposedBy) }}
+    {{ form_errors(form.proposedBy) }}
+</div>
+
+    <div class="field-group--full">
+        <button type="submit" class="submit-btn">{{ button_label|default('Créer le club') }}</button>
+    </div>
+
+</div>
+
 {{ form_end(form) }}
+
+<style>
+
+.fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+}
+
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field-group--full {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.fields-grid label {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.fields-grid input[type="text"],
+.fields-grid input[type="url"],
+.fields-grid input[type="file"],
+.fields-grid input[type="datetime-local"],
+.fields-grid input[type="checkbox"],
+.fields-grid textarea,
+.fields-grid select {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 11px 15px;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: inherit;
+}
+
+.fields-grid input::placeholder,
+.fields-grid textarea::placeholder {
+    color: rgba(255,255,255,0.2);
+}
+
+.fields-grid input:focus,
+.fields-grid textarea:focus,
+.fields-grid select:focus {
+    border-color: #a855f7;
+    background: rgba(168,85,247,0.1);
+}
+
+.fields-grid select option {
+    background: #240046;
+    color: white;
+}
+
+.fields-grid textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.fields-grid input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    cursor: pointer;
+    accent-color: #a855f7;
+}
+
+.fields-grid .invalid-feedback,
+.fields-grid .form-error {
+    color: #ff6b81;
+    font-size: 0.78rem;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #7b2ff7, #f107a3);
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.submit-btn:hover {
+    opacity: 0.88;
+    transform: scale(1.01);
+}
+
+</style>
