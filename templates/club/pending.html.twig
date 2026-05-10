@@ -1,0 +1,182 @@
+{% extends 'base.html.twig' %}
+{% block title %}Clubs en attente{% endblock %}
+
+{% block body %}
+{% include 'navbar/navbar.html.twig' %}
+
+<div class="club-page py-4">
+    <div class="container">
+
+        <div class="mb-4">
+            <h1 class="text-white fw-bold">Clubs en attente de validation</h1>
+            <p class="text-white-50">{{ clubs|length }} proposition(s) en attente</p>
+        </div>
+
+        {% for flash in app.flashes('success') %}
+            <div class="alert-flash success mb-3">{{ flash }}</div>
+        {% endfor %}
+        {% for flash in app.flashes('warning') %}
+            <div class="alert-flash warning mb-3">{{ flash }}</div>
+        {% endfor %}
+
+        {% for club in clubs %}
+        <div class="pending-card mb-3">
+            <div class="d-flex align-items-center gap-4 flex-wrap">
+
+                <div class="pending-logo">
+                    {% if club.logo %}
+                        <img src="{{ asset('uploads/logos/' ~ club.logo) }}" alt="{{ club.name }}">
+                    {% else %}
+                        <div class="logo-initial-sm">{{ club.name|slice(0,1)|upper }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="flex-grow-1">
+                    <div class="d-flex gap-2 mb-1">
+                        <span class="domain-badge">{{ club.domain }}</span>
+                    </div>
+                    <h3 class="text-white fw-bold mb-1">{{ club.name }}</h3>
+                    <p class="text-white-50 mb-1" style="font-size:0.9rem">{{ club.description }}</p>
+                    {% if club.website %}
+                        <a href="{{ club.website }}" target="_blank" class="website-link">
+                            🌐 {{ club.website }}
+                        </a>
+                    {% endif %}
+                    <p class="text-white-50 mt-1" style="font-size:0.8rem">
+                        Proposé le {{ club.createdAt ? club.createdAt|date('d/m/Y à H:i') : '—' }}
+                    </p>
+                </div>
+
+                <div class="d-flex gap-2 flex-shrink-0">
+                    <form method="POST" action="{{ path('app_club_review', {'id': club.id}) }}">
+                        <input type="hidden" name="action" value="approve">
+                        <button type="submit" class="review-btn approve-btn">✓ Approuver</button>
+                    </form>
+                    <form method="POST" action="{{ path('app_club_review', {'id': club.id}) }}">
+                        <input type="hidden" name="action" value="reject">
+                        <button type="submit" class="review-btn reject-btn">✗ Rejeter</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        {% else %}
+            <div class="empty-box text-center">
+                <p class="text-white fw-bold mb-0">Aucune proposition en attente.</p>
+            </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<style>
+body {
+    min-height: 100vh;
+    background-color: #292222;
+}
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url('/background/background.jpg');
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+    opacity: 0.4;
+    filter: blur(2px);
+    z-index: -2;
+    pointer-events: none;
+}
+.club-page { min-height: 100vh; }
+
+.alert-flash {
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.alert-flash.success {
+    background: rgba(25,135,84,0.2);
+    border: 1px solid rgba(74,222,128,0.3);
+    color: #4ade80;
+}
+.alert-flash.warning {
+    background: rgba(220,53,69,0.2);
+    border: 1px solid rgba(255,107,129,0.3);
+    color: #ff6b81;
+}
+
+.pending-card {
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 1.5rem 2rem;
+    transition: 0.2s;
+}
+.pending-card:hover { border-color: rgba(168,85,247,0.3); }
+
+.pending-logo {
+    width: 80px; height: 80px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.pending-logo img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+.logo-initial-sm {
+    font-size: 2rem; font-weight: 800; color: white;
+    background: linear-gradient(135deg, #7b2ff7, #f107a3);
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.domain-badge {
+    background: rgba(123,47,247,0.25);
+    border: 1px solid rgba(123,47,247,0.4);
+    color: #d8b4fe;
+    padding: 3px 12px;
+    border-radius: 50px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.website-link { color: #d8b4fe; text-decoration: none; font-size: 0.85rem; }
+.website-link:hover { color: white; }
+
+.review-btn {
+    padding: 9px 20px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.approve-btn {
+    background: rgba(25,135,84,0.2);
+    border: 1px solid rgba(74,222,128,0.3);
+    color: #4ade80;
+}
+.approve-btn:hover { background: rgba(25,135,84,0.4); color: white; }
+
+.reject-btn {
+    background: rgba(220,53,69,0.2);
+    border: 1px solid rgba(255,107,129,0.3);
+    color: #ff6b81;
+}
+.reject-btn:hover { background: rgba(220,53,69,0.4); color: white; }
+
+.empty-box {
+    padding: 60px 20px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+</style>
+
+{% endblock %}
