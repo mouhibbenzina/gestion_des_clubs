@@ -66,5 +66,5 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function isAdmin(): bool       { return in_array('ROLE_ADMIN', $this->roles); }
     public function isPresident(): bool   { return in_array('ROLE_PRESIDENT', $this->roles); }
     public function isResponsable(): bool { return in_array('ROLE_RESPONSABLE', $this->roles); }
-    public function isEtudiant(): bool    { return in_array('ROLE_USER', $this->roles) && !$this->isAdmin() && !$this->isPresident() && !$this->isResponsable(); }
+  public function isEtudiant(): bool    { return in_array('ROLE_ETUDIANT', $this->roles) && !$this->isAdmin() && !$this->isPresident() && !$this->isResponsable(); }
 }
