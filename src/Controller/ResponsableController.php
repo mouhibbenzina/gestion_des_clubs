@@ -6,13 +6,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class ResponsableController extends AbstractController
+#[Route('/responsable', name: 'responsable_')]
+class ResponsableController extends AbstractController
 {
-    #[Route('/responsable', name: 'app_responsable')]
-    public function index(): Response
+    #[Route('/dashboard', name: 'dashboard')]
+    public function dashboard(): Response
     {
-        return $this->render('responsable/index.html.twig', [
-            'controller_name' => 'ResponsableController',
-        ]);
+        return $this->render('responsable/dashboard.html.twig');
     }
 }

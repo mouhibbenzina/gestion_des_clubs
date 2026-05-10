@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -32,31 +30,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 100)]
     private ?string $prenom = null;
-
-    /**
-     * @var Collection<int, Participation>
-     */
-    #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'user', orphanRemoval: true)]
-    private Collection $participations;
-
-    /**
-     * @var Collection<int, ClubMember>
-     */
-    #[ORM\OneToMany(targetEntity: ClubMember::class, mappedBy: 'user')]
-    private Collection $clubMembers;
-
-    /**
-     * @var Collection<int, Club>
-     */
-    #[ORM\OneToMany(targetEntity: Club::class, mappedBy: 'proposedBy')]
-    private Collection $clubs;
-
-    public function __construct()
-    {
-        $this->participations = new ArrayCollection();
-        $this->clubMembers = new ArrayCollection();
-        $this->clubs = new ArrayCollection();
-    }
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $matricule = null;
@@ -89,4 +62,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setMatricule(?string $matricule): static { $this->matricule = $matricule; return $this; }
 
     public function eraseCredentials(): void {}
+
+    public function isAdmin(): bool       { return in_array('ROLE_ADMIN', $this->roles); }
+    public function isPresident(): bool   { return in_array('ROLE_PRESIDENT', $this->roles); }
+    public function isResponsable(): bool { return in_array('ROLE_RESPONSABLE', $this->roles); }
+    public function isEtudiant(): bool    { return in_array('ROLE_USER', $this->roles) && !$this->isAdmin() && !$this->isPresident() && !$this->isResponsable(); }
 }
