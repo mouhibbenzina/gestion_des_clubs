@@ -9,15 +9,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
-#[ORM\InheritanceType('SINGLE_TABLE')]          // ← Tout dans UNE seule table
-#[ORM\DiscriminatorColumn(name: 'type', type: 'string')] // ← colonne discriminante
-#[ORM\DiscriminatorMap([
-    'admin'       => Admin::class,
-    'etudiant'    => Etudiant::class,
-    'president'   => President::class,
-    'responsable' => Responsable::class,
-])]
-abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -39,7 +31,8 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 100)]
     private ?string $prenom = null;
 
-    // ── Getters / Setters ──────────────────────────────────────
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $matricule = null;
 
     public function getId(): ?int { return $this->id; }
 
@@ -51,7 +44,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        $roles[] = 'ROLE_USER'; // garanti pour tous
+        $roles[] = 'ROLE_USER';
         return array_unique($roles);
     }
     public function setRoles(array $roles): static { $this->roles = $roles; return $this; }
@@ -65,5 +58,13 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPrenom(): ?string { return $this->prenom; }
     public function setPrenom(string $prenom): static { $this->prenom = $prenom; return $this; }
 
+    public function getMatricule(): ?string { return $this->matricule; }
+    public function setMatricule(?string $matricule): static { $this->matricule = $matricule; return $this; }
+
     public function eraseCredentials(): void {}
+
+    public function isAdmin(): bool       { return in_array('ROLE_ADMIN', $this->roles); }
+    public function isPresident(): bool   { return in_array('ROLE_PRESIDENT', $this->roles); }
+    public function isResponsable(): bool { return in_array('ROLE_RESPONSABLE', $this->roles); }
+    public function isEtudiant(): bool    { return in_array('ROLE_USER', $this->roles) && !$this->isAdmin() && !$this->isPresident() && !$this->isResponsable(); }
 }
