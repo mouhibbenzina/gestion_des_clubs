@@ -61,6 +61,10 @@ class Club
     #[ORM\Column(length: 20)]
     private ?string $code = null;
 
+    #[ORM\Column]
+    private ?int $maxMembers = null;
+
+
     public function __construct()
     {
         $this->evenements = new ArrayCollection();
@@ -236,6 +240,18 @@ class Club
     public function setCode(string $code): static
     {
         $this->code = $code;
+
+        return $this;
+    }
+
+    public function getMaxMembers(): ?int
+    {
+        return $this->maxMembers;
+    }
+
+    public function setMaxMembers(int $maxMembers): static
+    {
+        $this->maxMembers = $maxMembers;
 
         return $this;
     }
