@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ recrutement.title }}{% endblock %}
+{% block body %}
+<div class="container mt-4">
+    <h1>{{ recrutement.title }}</h1>
+    <p><strong>Club:</strong> {{ recrutement.club.name }}</p>
+    <p><strong>Description:</strong> {{ recrutement.description }}</p>
+    <p><strong>Prérequis:</strong> {{ recrutement.requirements }}</p>
+    <p><strong>Deadline:</strong> {{ recrutement.deadline ? recrutement.deadline|date('d/m/Y') : '-' }}</p>
+    <p><strong>Statut:</strong> {{ recrutement.status }}</p>
+    <hr>
+    <h4>Candidatures ({{ recrutement.candidatures|length }})</h4>
+    {% for c in recrutement.candidatures %}
+        <p>{{ c.user.firstname }} {{ c.user.lastname }} — <strong>{{ c.status }}</strong></p>
+    {% endfor %}
+    <a href="{{ path('candidature_new', {recrutementId: recrutement.id}) }}" class="btn btn-success">Postuler</a>
+    <a href="{{ path('recrutement_index') }}" class="btn btn-secondary">Retour</a>
+</div>
+{% endblock %}

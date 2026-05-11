@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+{% block title %}Feedbacks{% endblock %}
+{% block body %}
+<div class="container mt-4">
+    <h1>Feedbacks</h1>
+    <table class="table table-bordered">
+        <thead><tr><th>Étudiant</th><th>Événement</th><th>Note</th><th>Avis</th><th>Date</th></tr></thead>
+        <tbody>
+        {% for f in feedbacks %}
+        <tr>
+            <td>{{ f.user.firstname }} {{ f.user.lastname }}</td>
+            <td>{{ f.evenement.nomEvenement }}</td>
+            <td>{{ f.rating }}/5</td>
+            <td>{{ f.content }}</td>
+            <td>{{ f.createdAt|date('d/m/Y') }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">Aucun feedback.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
