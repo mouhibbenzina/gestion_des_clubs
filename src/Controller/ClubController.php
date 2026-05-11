@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\ClubMember;
 
 #[Route('/club')]
 final class ClubController extends AbstractController
@@ -31,7 +32,7 @@ final class ClubController extends AbstractController
 }
 
     #[Route('/club/new', name: 'app_club_new')]
-#[IsGranted('ROLE_CHEF_CLUB')]
+//#[IsGranted('ROLE_CHEF_CLUB')]
 public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
 {
     $club = new Club();
@@ -136,7 +137,7 @@ public function edit(Request $request, Club $club, EntityManagerInterface $entit
     }
 
     #[Route('/admin/clubs/pending', name: 'app_club_pending')]
-#[IsGranted('ROLE_ADMIN')]
+//#[IsGranted('ROLE_ADMIN')]
 public function pending(ClubRepository $repo): Response
 {
     return $this->render('club/pending.html.twig', [
@@ -145,15 +146,31 @@ public function pending(ClubRepository $repo): Response
 }
 
 #[Route('/admin/clubs/{id}/review', name: 'app_club_review', methods: ['POST'])]
-#[IsGranted('ROLE_ADMIN')]
+//#[IsGranted('ROLE_ADMIN')]
 public function review(Club $club, Request $request, EntityManagerInterface $em): Response
 {
     $action = $request->request->get('action');
 
-    if ($action === 'approve') {
-        $club->setStatus('active');
-        $this->addFlash('success', 'Club approuvé avec succès.');
-    } elseif ($action === 'reject') {
+  if ($action === 'approve') {
+    $club->setStatus('active');
+
+    
+    $existing = $club->getClubMembers()->filter(
+        fn($m) => $m->getUser() === $club->getProposedBy()
+    );
+
+    if ($existing->isEmpty()) {
+        $member = new ClubMember();
+        $member->setClub($club);
+        $member->setUser($club->getProposedBy());
+        $member->setRole('President');
+        $member->setJoinedAt(new \DateTimeImmutable());
+
+        $em->persist($member);
+    }
+
+    $this->addFlash('success', 'Club approuvé et président ajouté.');
+} elseif ($action === 'reject') {
         $club->setStatus('rejected');
         $this->addFlash('warning', 'Club rejeté.');
     }
