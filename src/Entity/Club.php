@@ -11,6 +11,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ClubRepository::class)]
 class Club
 {
+
+    const STATUS_PENDING  = 'pending';
+    const STATUS_ACTIVE   = 'active';
+    const STATUS_REJECTED = 'rejected';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -31,8 +36,8 @@ class Club
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $website = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $status = null;
+      #[ORM\Column(length: 50)]
+    private ?string $status = 'pending';
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;

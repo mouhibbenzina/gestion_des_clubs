@@ -6,8 +6,13 @@ use App\Entity\Club;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class ClubType extends AbstractType
 {
@@ -17,7 +22,18 @@ class ClubType extends AbstractType
             ->add('name')
             ->add('description')
             ->add('domain')
-            ->add('logo')
+            ->add('logo', FileType::class, [
+                'label' => 'Logo du club',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2048k',
+                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'],
+                        'mimeTypesMessage' => 'Veuillez uploader une image valide',
+                    ])
+                ],
+            ])
             ->add('website')
             ->add('status')
             ->add('createdAt', null, [
@@ -25,7 +41,7 @@ class ClubType extends AbstractType
             ])
             ->add('proposedBy', EntityType::class, [
                 'class' => User::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nom',
             ])
         ;
     }

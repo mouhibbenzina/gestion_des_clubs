@@ -8,6 +8,8 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+
 
 class EvenementType extends AbstractType
 {
@@ -19,7 +21,10 @@ class EvenementType extends AbstractType
             ->add('dateFin')
             ->add('lieu')
             ->add('description')
-            ->add('image')
+            ->add('image', FileType::class, [
+                'required' => true,
+                'mapped' => false,
+            ])
             ->add('status')
             ->add('createdAt', null, [
                 'widget' => 'single_text',
