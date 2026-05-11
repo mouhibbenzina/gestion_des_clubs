@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% block title %}Donner un Feedback{% endblock %}
+{% block body %}
+<div class="container mt-4">
+    <h1>Feedback pour : {{ evenement.nomEvenement }}</h1>
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button type="submit" class="btn btn-primary mt-3">Envoyer</button>
+    <a href="{{ path('feedback_index') }}" class="btn btn-secondary mt-3">Annuler</a>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

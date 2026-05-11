@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+{% block title %}Postuler{% endblock %}
+{% block body %}
+<div class="container mt-4">
+    <h1>Postuler pour : {{ recrutement.title }}</h1>
+    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+    {{ form_widget(form) }}
+    <button type="submit" class="btn btn-primary mt-3">Envoyer ma candidature</button>
+    <a href="{{ path('recrutement_index') }}" class="btn btn-secondary mt-3">Annuler</a>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
