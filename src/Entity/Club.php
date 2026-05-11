@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ClubRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -62,6 +63,9 @@ class Club
     private ?string $code = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\Positive]
+    #[Assert\LessThanOrEqual(200)]
     private ?int $maxMembers = null;
 
 
@@ -249,7 +253,7 @@ class Club
         return $this->maxMembers;
     }
 
-    public function setMaxMembers(int $maxMembers): static
+    public function setMaxMembers(?int $maxMembers): static
     {
         $this->maxMembers = $maxMembers;
 

@@ -48,6 +48,7 @@ class ClubType extends AbstractType
                 'class' => User::class,
                 'choice_label' => 'nom',
             ])
+            ->add('maxMembers')
             
         ;
     }
