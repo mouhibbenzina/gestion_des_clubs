@@ -36,6 +36,11 @@ class ClubType extends AbstractType
             ])
             ->add('website')
             ->add('status')
+            ->add('code', TextType::class, [
+                'label' => 'Code d\'accès du club',
+                 'required' => false,
+                 'attr' => ['placeholder' => 'Ex: CLUB2024'],
+                ])
             ->add('createdAt', null, [
                 'widget' => 'single_text',
             ])
@@ -43,6 +48,7 @@ class ClubType extends AbstractType
                 'class' => User::class,
                 'choice_label' => 'nom',
             ])
+            
         ;
     }
 
