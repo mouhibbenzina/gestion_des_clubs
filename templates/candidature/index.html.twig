@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% block title %}Candidatures{% endblock %}
+{% block body %}
+<div class="container mt-4">
+    <h1>Candidatures</h1>
+    <table class="table table-bordered">
+        <thead><tr><th>Candidat</th><th>Offre</th><th>Statut</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for c in candidatures %}
+        <tr>
+            <td>{{ c.user.firstname }} {{ c.user.lastname }}</td>
+            <td>{{ c.recrutement.title }}</td>
+            <td><span class="badge bg-{{ c.status == 'accepted' ? 'success' : (c.status == 'rejected' ? 'danger' : 'warning') }}">{{ c.status }}</span></td>
+            <td>{{ c.submittedAt|date('d/m/Y') }}</td>
+            <td>
+                <form action="{{ path('candidature_status', {id: c.id, status: 'accepted'}) }}" method="post" style="display:inline">
+                    <button class="btn btn-sm btn-success">Accepter</button>
+                </form>
+                <form action="{{ path('candidature_status', {id: c.id, status: 'rejected'}) }}" method="post" style="display:inline">
+                    <button class="btn btn-sm btn-danger">Rejeter</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">Aucune candidature.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

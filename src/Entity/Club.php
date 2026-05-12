@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ClubRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,6 +12,11 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ClubRepository::class)]
 class Club
 {
+
+    const STATUS_PENDING  = 'pending';
+    const STATUS_ACTIVE   = 'active';
+    const STATUS_REJECTED = 'rejected';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -31,8 +37,8 @@ class Club
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $website = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $status = null;
+      #[ORM\Column(length: 50)]
+    private ?string $status = 'pending';
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -58,6 +64,15 @@ class Club
      */
     #[ORM\OneToMany(targetEntity: Recrutement::class, mappedBy: 'club')]
     private Collection $recrutements;
+
+    #[ORM\Column(length: 20)]
+    private ?string $code = null;
+
+    #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\Positive]
+    #[Assert\LessThanOrEqual(200)]
+    private ?int $maxMembers = null;
 
     public function __construct()
     {
@@ -251,6 +266,30 @@ class Club
                 $recrutement->setClub(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(string $code): static
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    public function getMaxMembers(): ?int
+    {
+        return $this->maxMembers;
+    }
+
+    public function setMaxMembers(?int $maxMembers): static
+    {
+        $this->maxMembers = $maxMembers;
 
         return $this;
     }

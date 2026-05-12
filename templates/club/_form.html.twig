@@ -50,8 +50,20 @@
     {{ form_errors(form.proposedBy) }}
 </div>
 
+<div class="field-group">
+    {{ form_label(form.code) }}
+    {{ form_widget(form.code) }}
+    {{ form_errors(form.code) }}
+</div>
+
+<div class="field-group">
+    {{ form_label(form.maxMembers) }}
+    {{ form_widget(form.maxMembers) }}
+    {{ form_errors(form.maxMembers) }}
+</div>
+
     <div class="field-group--full">
-        <button type="submit" class="submit-btn">{{ button_label|default('Créer le club') }}</button>
+        <button type="submit" class="submit-btn">{{ button_label|default('Proposer le club') }}</button>
     </div>
 
 </div>
@@ -93,6 +105,7 @@
 .fields-grid input[type="file"],
 .fields-grid input[type="datetime-local"],
 .fields-grid input[type="checkbox"],
+.fields-grid input[type="number"],
 .fields-grid textarea,
 .fields-grid select {
     width: 100%;

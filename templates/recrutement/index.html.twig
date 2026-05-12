@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+{% block title %}Offres de Recrutement{% endblock %}
+{% block body %}
+<div class="container mt-4">
+    <h1>Offres de Recrutement</h1>
+    <a href="{{ path('recrutement_new') }}" class="btn btn-primary mb-3">+ Nouvelle offre</a>
+    <table class="table table-bordered">
+        <thead><tr><th>Titre</th><th>Club</th><th>Deadline</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for r in recrutements %}
+        <tr>
+            <td>{{ r.title }}</td>
+            <td>{{ r.club.name }}</td>
+            <td>{{ r.deadline ? r.deadline|date('d/m/Y') : '-' }}</td>
+            <td><span class="badge bg-{{ r.status == 'open' ? 'success' : 'secondary' }}">{{ r.status }}</span></td>
+            <td>
+                <a href="{{ path('recrutement_show', {id: r.id}) }}" class="btn btn-sm btn-info">Voir</a>
+                <a href="{{ path('recrutement_edit', {id: r.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                <form action="{{ path('recrutement_delete', {id: r.id}) }}" method="post" style="display:inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete'~r.id) }}">
+                    <button class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ?')">Supprimer</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">Aucune offre disponible.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
