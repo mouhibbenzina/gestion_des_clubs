@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Étudiant — Tableau de bord{% endblock %}
+
+{% block body %}
+<div class="dash-page py-4">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="text-white fw-bold m-0">🎓 Espace Étudiant</h1>
+      <span class="text-light opacity-75">{{ app.user.prenom }} {{ app.user.nom }}</span>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-md-4">
+        <div class="dash-card">
+          <div class="card-icon" style="background:rgba(123,47,247,0.15); color:#a78bfa;">🏛</div>
+          <h4>Clubs</h4>
+          <p class="card-desc">Découvrez et rejoignez les clubs de l'ISET.</p>
+          <a href="{{ path('app_club_index') }}" class="card-link">Explorer les clubs →</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="dash-card">
+          <div class="card-icon" style="background:rgba(241,7,163,0.15); color:#f472b6;">📅</div>
+          <h4>Événements</h4>
+          <p class="card-desc">Consultez les événements à venir et participez.</p>
+          <a href="{{ path('app_evenement_index') }}" class="card-link">Voir les événements →</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="dash-card">
+          <div class="card-icon" style="background:rgba(201,168,76,0.15); color:#fbbf24;">📝</div>
+          <h4>Candidatures</h4>
+          <p class="card-desc">Postulez aux recrutements ouverts des clubs.</p>
+          <a href="#" class="card-link">Postuler →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="welcome-box">
+      <h3>Bienvenue {{ app.user.prenom }} !</h3>
+      <p>Explorez les clubs, participez aux événements et engagez-vous dans la vie étudiante.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  body { background:#0b0b1e; min-height:100vh; }
+  .dash-page { min-height:100vh; }
+  .dash-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(14px);
+    border-radius: 20px;
+    padding: 28px 24px;
+    height:100%;
+    transition:0.3s;
+  }
+  .dash-card:hover { transform:translateY(-4px); border-color:rgba(168,85,247,0.3); }
+  .card-icon { display:inline-flex; width:48px; height:48px; border-radius:14px; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:14px; }
+  .dash-card h4 { color:white; font-weight:700; font-size:1.1rem; margin-bottom:6px; }
+  .card-desc { color:rgba(255,255,255,0.5); font-size:0.85rem; margin-bottom:14px; }
+  .card-link { color:#a78bfa; text-decoration:none; font-weight:600; font-size:0.85rem; }
+  .card-link:hover { color:white; }
+  .welcome-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 18px;
+    padding: 28px 32px;
+    margin-top: 8px;
+  }
+  .welcome-box h3 { color:white; font-weight:700; margin-bottom:8px; }
+  .welcome-box p { color:rgba(255,255,255,0.5); margin:0; font-size:0.9rem; }
+</style>
+{% endblock %}

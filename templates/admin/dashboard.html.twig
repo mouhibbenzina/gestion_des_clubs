@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin — Tableau de bord{% endblock %}
+
+{% block body %}
+<div class="admin-page py-4">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="text-white fw-bold m-0">⚙ Administration</h1>
+      <span class="text-light opacity-75">{{ app.user.prenom }} {{ app.user.nom }}</span>
+    </div>
+
+    {% for label, messages in app.flashes %}
+      {% for msg in messages %}
+        <div class="alert alert-{{ label == 'error' ? 'danger' : 'success' }} alert-dismissible fade show" role="alert">
+          {{ msg }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endfor %}
+
+    <div class="row g-4 mb-5">
+      <div class="col-md-3">
+        <div class="stat-card" style="border-color: #7b2ff7;">
+          <div class="stat-num" style="color:#a78bfa;">{{ admins|length }}</div>
+          <div class="stat-lbl">Administrateurs</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card" style="border-color: #f107a3;">
+          <div class="stat-num" style="color:#f472b6;">{{ presidents|length }}</div>
+          <div class="stat-lbl">Présidents</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card" style="border-color: #c9a84c;">
+          <div class="stat-num" style="color:#fbbf24;">{{ responsables|length }}</div>
+          <div class="stat-lbl">Responsables</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card" style="border-color: #0ea5e9;">
+          <div class="stat-num" style="color:#38bdf8;">{{ etudiants|length }}</div>
+          <div class="stat-lbl">Étudiants</div>
+        </div>
+      </div>
+    </div>
+
+    {% set sections = {
+      'admin':       { label: 'Administrateurs', users: admins,       color: '#7b2ff7', role: 'admin' },
+      'president':   { label: 'Présidents',      users: presidents,   color: '#f107a3', role: 'president' },
+      'responsable': { label: 'Responsables',    users: responsables, color: '#c9a84c', role: 'responsable' },
+      'etudiant':    { label: 'Étudiants',       users: etudiants,    color: '#0ea5e9', role: 'etudiant' }
+    } %}
+
+    {% for key, sec in sections %}
+      <div class="section-card mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="text-white fw-bold m-0" style="border-left:4px solid {{ sec.color }}; padding-left:14px;">
+            {{ sec.label }}
+          </h3>
+          <a href="{{ path('admin_user_new', {role: sec.role}) }}" class="btn-sm-add" style="background:{{ sec.color }};">
+            + Ajouter
+          </a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-dark table-borderless align-middle mb-0">
+            <thead>
+              <tr class="text-uppercase" style="color:rgba(255,255,255,0.3); font-size:11px; letter-spacing:1px;">
+                <th>Nom</th><th>Email</th><th>Matricule</th><th style="width:80px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in sec.users %}
+                <tr>
+                  <td class="fw-semibold">{{ user.prenom }} {{ user.nom }}</td>
+                  <td style="color:rgba(255,255,255,0.6);">{{ user.email }}</td>
+                  <td style="color:rgba(255,255,255,0.4);">{{ user.matricule ?? '—' }}</td>
+                  <td>
+                    <form method="post" action="{{ path('admin_user_delete', {id: user.id}) }}" onsubmit="return confirm('Supprimer {{ user.prenom }} {{ user.nom }} ?')" style="display:inline;">
+                      <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                      <button class="btn-del">✕</button>
+                    </form>
+                  </td>
+                </tr>
+              {% else %}
+                <tr><td colspan="4" class="text-center" style="color:rgba(255,255,255,0.3);">Aucun utilisateur</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  body { background:#0b0b1e; min-height:100vh; }
+  .admin-page { min-height:100vh; }
+  .stat-card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 24px 20px;
+    text-align:center;
+    border-top: 3px solid;
+  }
+  .stat-num { font-size:2.2rem; font-weight:800; line-height:1; }
+  .stat-lbl { font-size:0.78rem; color:rgba(255,255,255,0.45); margin-top:6px; text-transform:uppercase; letter-spacing:1px; }
+  .section-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 24px;
+  }
+  .btn-sm-add {
+    display:inline-block; padding:8px 18px; border-radius:50px;
+    color:white; font-weight:600; font-size:0.8rem;
+    text-decoration:none; transition:0.2s;
+  }
+  .btn-sm-add:hover { opacity:0.85; color:white; transform:scale(1.03); }
+  .btn-del {
+    background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.25);
+    color:#fca5a5; width:32px; height:32px; border-radius:8px;
+    cursor:pointer; font-size:13px; transition:0.2s;
+  }
+  .btn-del:hover { background:rgba(239,68,68,0.3); }
+  .table-dark { --bs-table-bg:transparent; --bs-table-color:white; }
+  .table > :not(caption) > * > * { border-bottom:1px solid rgba(255,255,255,0.05); padding:12px 8px; }
+</style>
+{% endblock %}
