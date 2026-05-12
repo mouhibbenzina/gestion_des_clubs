@@ -1,95 +1,78 @@
 <style>
-
-    .custom-navbar {
-        background: rgba(255,255,255,0.08);
-        backdrop-filter: blur(14px);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 20px;
-        padding: 12px 20px;
-    }
-
-    .navbar-brand {
-        font-size: 1.3rem;
-        letter-spacing: 1px;
-    }
-
-    .nav-link {
-        color: rgba(255,255,255,0.75) !important;
-        font-weight: 500;
-        transition: 0.3s ease;
-    }
-
-    .nav-link:hover {
-        color: white !important;
-    }
-
-    .login-btn {
-        background: linear-gradient(135deg, #7b2ff7, #f107a3);
-        color: white;
-        text-decoration: none;
-        padding: 10px 20px;
-        border-radius: 12px;
-        font-weight: 600;
-    }
-
-    .login-btn:hover {
-        color: white;
-        opacity: 0.9;
-    }
-
+.top-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 56px;
+  background: rgba(18,5,20,0.5);
+  border-bottom: 1px solid rgba(255,140,50,0.1);
+  backdrop-filter: blur(14px);
+  position: sticky; top: 0; z-index: 50;
+}
+.nav-logo {
+  font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 9px; color: white;
+  text-decoration: none;
+}
+.nav-logo-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, #e85c00, #b81c05);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: white;
+}
+.nav-center { display: flex; gap: 4px; }
+.nav-link {
+  font-size: 13px; color: rgba(255,200,170,0.6);
+  padding: 6px 13px; border-radius: 6px; text-decoration: none; transition: 0.2s;
+}
+.nav-link:hover, .nav-link.active { background: rgba(232,92,0,0.12); color: white; }
+.nav-right { display: flex; gap: 8px; align-items: center; }
+.nav-btn {
+  font-size: 13px; padding: 7px 16px; border-radius: 8px;
+  border: 1px solid rgba(255,140,50,0.2);
+  background: transparent; color: rgba(255,200,170,0.7);
+  text-decoration: none; cursor: pointer; transition: 0.2s;
+}
+.nav-btn:hover { background: rgba(232,92,0,0.08); color: white; }
+.nav-btn-primary {
+  background: linear-gradient(135deg, #e85c00, #b81c05);
+  border-color: transparent; color: white;
+}
+.nav-btn-primary:hover { opacity: 0.92; }
+.user-avatar-sm {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, #e85c00, #b81c05);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.user-info { display: flex; align-items: center; gap: 8px; }
+.user-name { font-size: 13px; color: rgba(255,220,190,0.85); font-weight: 600; }
 </style>
 
-<nav class="navbar navbar-expand-lg custom-navbar mb-5">
+<nav class="top-nav">
+  <a class="nav-logo" href="{{ path('app_home') }}">
+    {% if app.user %}
+      <div class="user-info">
+        <div class="user-avatar-sm">{{ app.user.prenom|slice(0,1)|upper }}{{ app.user.nom|slice(0,1)|upper }}</div>
+        <span class="user-name">{{ app.user.prenom }} {{ app.user.nom }}</span>
+      </div>
+    {% else %}
+      <span class="nav-logo-icon">C</span>
+      ISET Clubs
+    {% endif %}
+  </a>
 
-    <div class="container">
+  <div class="nav-center">
+    <a href="{{ path('app_home') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_home' %} active{% endif %}">Accueil</a>
+    <a href="{{ path('app_club_index') }}" class="nav-link{% if app.request.attributes.get('_route') starts with 'app_club' %} active{% endif %}">Clubs</a>
+    <a href="{{ path('app_evenement_index') }}" class="nav-link{% if app.request.attributes.get('_route') starts with 'app_evenement' %} active{% endif %}">Événements</a>
+  </div>
 
-        <a class="navbar-brand fw-bold text-white"
-           href="{{ path('app_club_index') }}">
-            ISET Zaghouan
-        </a>
-
-        <button class="navbar-toggler border-0 shadow-none"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarContent">
-
-            <span class="navbar-toggler-icon"></span>
-
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarContent">
-
-            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
-
-                <li class="nav-item">
-                    <a class="nav-link"
-                       href="{{ path('app_club_index') }}">
-                        Accueil
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="/club">
-                        Clubs
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="/evenement">
-                        Événements
-                    </a>
-                </li>
-
-                <li class="nav-item ms-lg-2">
-                    <a class="login-btn" href="#">
-                        Connexion
-                    </a>
-                </li>
-
-            </ul>
-
-        </div>
-
-    </div>
-
+  <div class="nav-right">
+    {% if app.user %}
+      <a href="{{ path('app_dashboard') }}" class="nav-btn">Tableau de bord</a>
+      <a href="{{ path('app_logout') }}" class="nav-btn">Déconnexion</a>
+    {% else %}
+      <a href="{{ path('app_login') }}" class="nav-btn">Connexion</a>
+      <a href="{{ path('app_register') }}" class="nav-btn nav-btn-primary">S'inscrire</a>
+    {% endif %}
+  </div>
 </nav>

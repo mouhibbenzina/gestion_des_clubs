@@ -4,6 +4,15 @@
 {% block body %}
 {% include 'navbar/navbar.html.twig' %}
 
+{# ── Animated blob background ── #}
+<div class="blob-bg" id="blobBg" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+    <div class="blob blob-5"></div>
+</div>
+
 <div class="club-page py-4">
     <div class="container">
 
@@ -70,22 +79,96 @@
 </div>
 
 <style>
-body {
-    min-height: 100vh;
-    background-color: #292222;
-}
-body::before {
-    content: '';
+
+/* ── Animated blob background ── */
+.blob-bg {
     position: fixed;
     inset: 0;
-    background-image: url('/background/background.jpg');
-    background-repeat: no-repeat;
-    background-position: center top;
-    background-size: cover;
-    opacity: 0.4;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 70% 40%, #e84c0e 0%, #b81c05 35%, #7a0a0e 65%, #2d0520 100%);
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
     filter: blur(2px);
-    z-index: -2;
-    pointer-events: none;
+}
+
+.blob-1 {
+    width: 340px; height: 340px;
+    background: radial-gradient(circle at 40% 35%, #ffaa00, #e85c00 55%, transparent 80%);
+    top: -60px; right: 100px;
+    animation: float1 9s ease-in-out infinite;
+}
+.blob-2 {
+    width: 180px; height: 180px;
+    background: radial-gradient(circle at 45% 40%, #ffd060, #ff8800 60%, transparent 80%);
+    top: 20px; right: 330px;
+    animation: float2 11s ease-in-out infinite;
+}
+.blob-3 {
+    width: 420px; height: 360px;
+    background: radial-gradient(circle at 50% 45%, #ff6a00 0%, #dd2200 50%, transparent 75%);
+    bottom: -100px; right: -40px;
+    animation: float3 13s ease-in-out infinite;
+}
+.blob-4 {
+    width: 260px; height: 200px;
+    background: radial-gradient(circle at 50% 50%, #ff4500 0%, #9e0a00 55%, transparent 80%);
+    bottom: 20px; left: 80px;
+    animation: float4 10s ease-in-out infinite;
+}
+.blob-5 {
+    width: 90px; height: 90px;
+    background: radial-gradient(circle at 45% 40%, #ffc040, #ff7800 60%, transparent 80%);
+    top: 130px; right: 260px;
+    animation: float5 7s ease-in-out infinite;
+}
+
+.sparkle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: rgba(255,255,255,0.55);
+    border-radius: 50%;
+}
+
+@keyframes float1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(-18px, 22px) scale(1.04); }
+    66% { transform: translate(12px, -14px) scale(0.97); }
+}
+@keyframes float2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    40% { transform: translate(20px, 18px) scale(1.06); }
+    70% { transform: translate(-10px, -8px) scale(0.95); }
+}
+@keyframes float3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    30% { transform: translate(-25px, -20px) scale(1.03); }
+    60% { transform: translate(15px, 12px) scale(0.98); }
+}
+@keyframes float4 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    45% { transform: translate(22px, -18px) scale(1.05); }
+    75% { transform: translate(-12px, 10px) scale(0.96); }
+}
+@keyframes float5 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-14px, 20px) scale(1.1); }
+}
+
+body {
+    min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,200,170,0.2); border-radius: 20px; }
+
+.club-page .container {
+    max-width: 1480px;
 }
 .club-page { min-height: 100vh; }
 
@@ -94,33 +177,34 @@ body::before {
     border-radius: 12px;
     font-weight: 600;
     font-size: 0.9rem;
+    backdrop-filter: blur(8px);
 }
 .alert-flash.success {
-    background: rgba(25,135,84,0.2);
-    border: 1px solid rgba(74,222,128,0.3);
-    color: #4ade80;
+    background: rgba(232,92,0,0.12);
+    border: 1px solid rgba(255,153,68,0.25);
+    color: #ff9944;
 }
 .alert-flash.warning {
-    background: rgba(220,53,69,0.2);
-    border: 1px solid rgba(255,107,129,0.3);
+    background: rgba(220,53,69,0.1);
+    border: 1px solid rgba(255,107,129,0.2);
     color: #ff6b81;
 }
 
 .pending-card {
-    background: rgba(255,255,255,0.07);
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(18, 5, 20, 0.5);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,140,50,0.1);
     border-radius: 20px;
     padding: 1.5rem 2rem;
     transition: 0.2s;
 }
-.pending-card:hover { border-color: rgba(168,85,247,0.3); }
+.pending-card:hover { border-color: rgba(255,140,50,0.3); }
 
 .pending-logo {
     width: 80px; height: 80px;
     border-radius: 16px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(18,5,20,0.5);
+    border: 1px solid rgba(255,140,50,0.1);
     overflow: hidden;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
@@ -128,15 +212,15 @@ body::before {
 .pending-logo img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
 .logo-initial-sm {
     font-size: 2rem; font-weight: 800; color: white;
-    background: linear-gradient(135deg, #7b2ff7, #f107a3);
+    background: linear-gradient(135deg, #e85c00, #b81c05);
     width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;
 }
 
 .domain-badge {
-    background: rgba(123,47,247,0.25);
-    border: 1px solid rgba(123,47,247,0.4);
-    color: #d8b4fe;
+    background: rgba(232,92,0,0.15);
+    border: 1px solid rgba(255,140,50,0.3);
+    color: #ff9944;
     padding: 3px 12px;
     border-radius: 50px;
     font-size: 0.72rem;
@@ -145,8 +229,8 @@ body::before {
     text-transform: uppercase;
 }
 
-.website-link { color: #d8b4fe; text-decoration: none; font-size: 0.85rem; }
-.website-link:hover { color: white; }
+.website-link { color: rgba(255,180,120,0.8); text-decoration: none; font-size: 0.85rem; }
+.website-link:hover { color: #ff9944; }
 
 .review-btn {
     padding: 9px 20px;
@@ -158,25 +242,46 @@ body::before {
     transition: 0.2s;
 }
 .approve-btn {
-    background: rgba(25,135,84,0.2);
-    border: 1px solid rgba(74,222,128,0.3);
-    color: #4ade80;
+    background: rgba(232,92,0,0.12);
+    border: 1px solid rgba(255,153,68,0.3);
+    color: #ff9944;
 }
-.approve-btn:hover { background: rgba(25,135,84,0.4); color: white; }
+.approve-btn:hover { background: rgba(232,92,0,0.25); color: white; }
 
 .reject-btn {
-    background: rgba(220,53,69,0.2);
-    border: 1px solid rgba(255,107,129,0.3);
+    background: rgba(220,53,69,0.1);
+    border: 1px solid rgba(255,107,129,0.2);
     color: #ff6b81;
 }
-.reject-btn:hover { background: rgba(220,53,69,0.4); color: white; }
+.reject-btn:hover { background: rgba(220,53,69,0.2); color: #ff8a9e; }
 
 .empty-box {
     padding: 60px 20px;
     border-radius: 20px;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(18,5,20,0.45);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,140,50,0.08);
 }
 </style>
+
+<script>
+(function() {
+    const bg = document.getElementById('blobBg');
+    if (!bg) return;
+    const positions = [
+        [12,8],[25,60],[40,25],[55,80],[68,15],[75,50],[85,35],[90,70],[5,45],[50,5],[30,90],[60,55],[80,20],[15,75],[45,40]
+    ];
+    positions.forEach(([left, top]) => {
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.style.left = left + '%';
+        s.style.top = top + '%';
+        s.style.opacity = (0.2 + Math.random() * 0.5).toFixed(2);
+        s.style.animation = `float${(Math.floor(Math.random()*5)+1)} ${6+Math.random()*8}s ease-in-out infinite`;
+        s.style.animationDelay = (Math.random() * 4).toFixed(1) + 's';
+        bg.appendChild(s);
+    });
+})();
+</script>
 
 {% endblock %}

@@ -6,6 +6,15 @@
 
 {% include 'navbar/navbar.html.twig' %}
 
+{# ── Animated blob background ── #}
+<div class="blob-bg" id="blobBg" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+    <div class="blob blob-5"></div>
+</div>
+
 <div class="create-page py-4">
     <div class="container-wide">
 
@@ -53,72 +62,125 @@
 
 <style>
 
+/* ── Animated blob background ── */
+.blob-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 70% 40%, #e84c0e 0%, #b81c05 35%, #7a0a0e 65%, #2d0520 100%);
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    filter: blur(2px);
+}
+
+.blob-1 {
+    width: 340px; height: 340px;
+    background: radial-gradient(circle at 40% 35%, #ffaa00, #e85c00 55%, transparent 80%);
+    top: -60px; right: 100px;
+    animation: float1 9s ease-in-out infinite;
+}
+.blob-2 {
+    width: 180px; height: 180px;
+    background: radial-gradient(circle at 45% 40%, #ffd060, #ff8800 60%, transparent 80%);
+    top: 20px; right: 330px;
+    animation: float2 11s ease-in-out infinite;
+}
+.blob-3 {
+    width: 420px; height: 360px;
+    background: radial-gradient(circle at 50% 45%, #ff6a00 0%, #dd2200 50%, transparent 75%);
+    bottom: -100px; right: -40px;
+    animation: float3 13s ease-in-out infinite;
+}
+.blob-4 {
+    width: 260px; height: 200px;
+    background: radial-gradient(circle at 50% 50%, #ff4500 0%, #9e0a00 55%, transparent 80%);
+    bottom: 20px; left: 80px;
+    animation: float4 10s ease-in-out infinite;
+}
+.blob-5 {
+    width: 90px; height: 90px;
+    background: radial-gradient(circle at 45% 40%, #ffc040, #ff7800 60%, transparent 80%);
+    top: 130px; right: 260px;
+    animation: float5 7s ease-in-out infinite;
+}
+
+@keyframes float1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(-18px, 22px) scale(1.04); }
+    66% { transform: translate(12px, -14px) scale(0.97); }
+}
+@keyframes float2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    40% { transform: translate(20px, 18px) scale(1.06); }
+    70% { transform: translate(-10px, -8px) scale(0.95); }
+}
+@keyframes float3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    30% { transform: translate(-25px, -20px) scale(1.03); }
+    60% { transform: translate(15px, 12px) scale(0.98); }
+}
+@keyframes float4 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    45% { transform: translate(22px, -18px) scale(1.05); }
+    75% { transform: translate(-12px, 10px) scale(0.96); }
+}
+@keyframes float5 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-14px, 20px) scale(1.1); }
+}
+
 body {
     min-height: 100vh;
-    overflow: hidden;
-    background-color: #292222;
-    position: relative;
 }
 
-/* Background wave image */
-body::before {
-    content: '';
-    position: fixed;
-
-    inset: 0;
-
-    background-image: url('/background/background.jpg');
-    background-repeat: no-repeat;
-    background-position: center top;
-    background-size: cover;
-
-    opacity: 0.4;
-
-    filter: blur(2px);
-
-    z-index: -2;
-    pointer-events: none;
-}
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,200,170,0.2); border-radius: 20px; }
 
 .create-page { min-height: 100vh; }
 
 .container-wide {
-    width: 85%;
-    max-width: 1300px;
+    width: 92%;
+    max-width: 1480px;
     margin: 0 auto;
-    padding: 0 20px;
 }
 
 .back-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: rgba(255,255,255,0.6);
+    color: rgba(255,200,170,0.6);
     text-decoration: none;
     font-size: 0.85rem;
     font-weight: 500;
     padding: 7px 16px;
     border-radius: 50px;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,140,50,0.15);
+    background: rgba(232,92,0,0.08);
     transition: 0.2s ease;
 }
-.back-btn:hover { color: white; background: rgba(255,255,255,0.1); }
+.back-btn:hover { color: white; background: rgba(232,92,0,0.18); }
 
 .form-card {
     display: grid;
     grid-template-columns: 320px 1fr;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(16px);
-    border-radius: 28px;
+    background: rgba(18, 5, 20, 0.5);
+    border: 1px solid rgba(255,140,50,0.12);
+    backdrop-filter: blur(18px);
+    border-radius: 24px;
     overflow: hidden;
     min-height: 560px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
 }
 
 .form-left {
-    background: rgba(100,30,220,0.3);
-    border-right: 1px solid rgba(255,255,255,0.08);
+    background: rgba(232,92,0,0.12);
+    border-right: 1px solid rgba(255,140,50,0.1);
     padding: 50px 36px;
     position: relative;
     overflow: hidden;
@@ -130,11 +192,11 @@ body::before {
 .form-left-inner { position: relative; z-index: 2; }
 
 .deco-circle { position: absolute; border-radius: 50%; pointer-events: none; z-index: 1; }
-.c1 { width: 260px; height: 260px; background: rgba(123,47,247,0.15); bottom: -80px; right: -80px; }
-.c2 { width: 160px; height: 160px; background: rgba(241,7,163,0.12); top: -50px; left: -50px; }
+.c1 { width: 260px; height: 260px; background: rgba(232,92,0,0.1); bottom: -80px; right: -80px; }
+.c2 { width: 160px; height: 160px; background: rgba(184,28,5,0.15); top: -50px; left: -50px; }
 
 .form-badge {
-    background: linear-gradient(135deg, #f107a3, #7b2ff7);
+    background: linear-gradient(135deg, #e85c00, #b81c05);
     color: white;
     padding: 7px 18px;
     border-radius: 50px;
@@ -142,6 +204,7 @@ body::before {
     font-weight: 600;
     letter-spacing: 1px;
     display: inline-block;
+    box-shadow: 0 2px 10px rgba(232,92,0,0.35);
 }
 
 .form-title {
@@ -154,7 +217,7 @@ body::before {
 }
 
 .form-subtitle {
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,200,170,0.55);
     font-size: 0.88rem;
     line-height: 1.7;
     margin-top: 12px;
@@ -167,11 +230,11 @@ body::before {
     align-items: flex-start;
     gap: 10px;
     font-size: 0.85rem;
-    color: rgba(255,255,255,0.6);
+    color: rgba(255,200,170,0.6);
     line-height: 1.5;
 }
 
-.info-icon { color: #a855f7; flex-shrink: 0; margin-top: 1px; }
+.info-icon { color: #ff8c42; flex-shrink: 0; margin-top: 1px; }
 
 .form-right {
     padding: 44px 50px;
@@ -181,5 +244,25 @@ body::before {
 }
 
 </style>
+
+<script>
+(function() {
+    const bg = document.getElementById('blobBg');
+    if (!bg) return;
+    const positions = [
+        [12,8],[25,60],[40,25],[55,80],[68,15],[75,50],[85,35],[90,70],[5,45],[50,5],[30,90],[60,55],[80,20],[15,75],[45,40]
+    ];
+    positions.forEach(([left, top]) => {
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.style.left = left + '%';
+        s.style.top = top + '%';
+        s.style.opacity = (0.2 + Math.random() * 0.5).toFixed(2);
+        s.style.animation = `float${(Math.floor(Math.random()*5)+1)} ${6+Math.random()*8}s ease-in-out infinite`;
+        s.style.animationDelay = (Math.random() * 4).toFixed(1) + 's';
+        bg.appendChild(s);
+    });
+})();
+</script>
 
 {% endblock %}

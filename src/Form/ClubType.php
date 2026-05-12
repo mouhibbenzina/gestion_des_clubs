@@ -41,9 +41,6 @@ class ClubType extends AbstractType
                  'required' => false,
                  'attr' => ['placeholder' => 'Ex: CLUB2024'],
                 ])
-            ->add('createdAt', null, [
-                'widget' => 'single_text',
-            ])
             ->add('proposedBy', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'nom',

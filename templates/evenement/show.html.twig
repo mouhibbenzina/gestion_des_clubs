@@ -1,54 +1,491 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Evenement{% endblock %}
+{% block title %}{{ evenement.nomEvenement }}{% endblock %}
 
 {% block body %}
-    <h1>Evenement</h1>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ evenement.id }}</td>
-            </tr>
-            <tr>
-                <th>NomEvenement</th>
-                <td>{{ evenement.nomEvenement }}</td>
-            </tr>
-            <tr>
-                <th>DateDebut</th>
-                <td>{{ evenement.dateDebut ? evenement.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>DateFin</th>
-                <td>{{ evenement.dateFin ? evenement.dateFin|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Lieu</th>
-                <td>{{ evenement.lieu }}</td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td>{{ evenement.description }}</td>
-            </tr>
-            <tr>
-                <th>Image</th>
-                <td>{{ evenement.image }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ evenement.status }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ evenement.createdAt ? evenement.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+{% include 'navbar/navbar.html.twig' %}
 
-    <a href="{{ path('app_evenement_index') }}">back to list</a>
+{# ── Animated blob background ── #}
+<div class="blob-bg" id="blobBg" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+    <div class="blob blob-5"></div>
+</div>
 
-    <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}">edit</a>
+<div class="ev-page py-4">
+    <div class="container">
 
-    {{ include('evenement/_delete_form.html.twig') }}
+        <div class="mb-4">
+            <a href="{{ path('app_evenement_index') }}" class="back-link">
+                ← Retour aux événements
+            </a>
+        </div>
+
+        <div class="show-card">
+
+            <!-- HERO TOP -->
+            <div class="show-hero">
+                <div class="hero-glow"></div>
+
+                <div class="d-flex flex-column flex-md-row align-items-center gap-4">
+
+                    <!-- IMAGE -->
+                    <div class="logo-wrapper">
+                        {% if evenement.image %}
+                            <img src="{{ asset('uploads/events/' ~ evenement.image) }}"
+                                 alt="{{ evenement.nomEvenement }}" class="ev-logo-img">
+                        {% else %}
+                            <div class="logo-initial">{{ evenement.nomEvenement|slice(0,1)|upper }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- TITLE + META -->
+                    <div class="flex-grow-1">
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <span class="domain-badge">{{ evenement.lieu }}</span>
+                            {% if evenement.status == 'actif' or evenement.status == 'Actif' or evenement.status == true %}
+                                <span class="status active">● Actif</span>
+                            {% else %}
+                                <span class="status inactive">● Terminé</span>
+                            {% endif %}
+                        </div>
+                        <h1 class="show-title">{{ evenement.nomEvenement }}</h1>
+                        <p class="show-description">{{ evenement.description ?? '' }}</p>
+
+                        <div class="d-flex gap-3 mt-2 flex-wrap">
+                            <span class="meta-chip">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                {{ evenement.dateDebut ? evenement.dateDebut|date('d/m/Y H:i') : '—' }}
+                                {% if evenement.dateFin %} → {{ evenement.dateFin|date('d/m/Y H:i') }}{% endif %}
+                            </span>
+                            <span class="meta-chip">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                {{ evenement.lieu }}
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- DETAILS SECTION -->
+            <div class="details-section">
+
+                <h2 class="section-heading">Informations de l'événement</h2>
+
+                <div class="details-grid">
+
+                    <div class="detail-item">
+                        <div class="detail-icon">🏷️</div>
+                        <div>
+                            <span class="detail-label">Nom</span>
+                            <span class="detail-value">{{ evenement.nomEvenement }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">📅</div>
+                        <div>
+                            <span class="detail-label">Date début</span>
+                            <span class="detail-value">{{ evenement.dateDebut ? evenement.dateDebut|date('d/m/Y H:i') : '—' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">📅</div>
+                        <div>
+                            <span class="detail-label">Date fin</span>
+                            <span class="detail-value">{{ evenement.dateFin ? evenement.dateFin|date('d/m/Y H:i') : '—' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">📍</div>
+                        <div>
+                            <span class="detail-label">Lieu</span>
+                            <span class="detail-value">{{ evenement.lieu ?? '—' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">📌</div>
+                        <div>
+                            <span class="detail-label">Statut</span>
+                            <span class="detail-value">
+                                {% if evenement.status == 'actif' or evenement.status == 'Actif' or evenement.status == true %}
+                                    <span class="status active">● Actif</span>
+                                {% else %}
+                                    <span class="status inactive">● Terminé</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="detail-item">
+                        <div class="detail-icon">🏫</div>
+                        <div>
+                            <span class="detail-label">Club organisateur</span>
+                            <span class="detail-value">{{ evenement.club ? evenement.club.name : '—' }}</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="description-block mt-4">
+                    <div class="detail-icon mb-2">📝</div>
+                    <span class="detail-label d-block mb-2">Description complète</span>
+                    <p class="description-text">{{ evenement.description }}</p>
+                </div>
+
+                <div class="d-flex gap-2 mt-4 justify-content-end flex-wrap">
+                    <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}" class="action-btn edit-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Modifier
+                    </a>
+                    {{ include('evenement/_delete_form.html.twig') }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<style>
+
+/* ── Animated blob background ── */
+.blob-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 70% 40%, #e84c0e 0%, #b81c05 35%, #7a0a0e 65%, #2d0520 100%);
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    filter: blur(2px);
+}
+
+.blob-1 {
+    width: 340px; height: 340px;
+    background: radial-gradient(circle at 40% 35%, #ffaa00, #e85c00 55%, transparent 80%);
+    top: -60px; right: 100px;
+    animation: float1 9s ease-in-out infinite;
+}
+.blob-2 {
+    width: 180px; height: 180px;
+    background: radial-gradient(circle at 45% 40%, #ffd060, #ff8800 60%, transparent 80%);
+    top: 20px; right: 330px;
+    animation: float2 11s ease-in-out infinite;
+}
+.blob-3 {
+    width: 420px; height: 360px;
+    background: radial-gradient(circle at 50% 45%, #ff6a00 0%, #dd2200 50%, transparent 75%);
+    bottom: -100px; right: -40px;
+    animation: float3 13s ease-in-out infinite;
+}
+.blob-4 {
+    width: 260px; height: 200px;
+    background: radial-gradient(circle at 50% 50%, #ff4500 0%, #9e0a00 55%, transparent 80%);
+    bottom: 20px; left: 80px;
+    animation: float4 10s ease-in-out infinite;
+}
+.blob-5 {
+    width: 90px; height: 90px;
+    background: radial-gradient(circle at 45% 40%, #ffc040, #ff7800 60%, transparent 80%);
+    top: 130px; right: 260px;
+    animation: float5 7s ease-in-out infinite;
+}
+
+.sparkle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: rgba(255,255,255,0.55);
+    border-radius: 50%;
+}
+
+@keyframes float1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(-18px, 22px) scale(1.04); }
+    66% { transform: translate(12px, -14px) scale(0.97); }
+}
+@keyframes float2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    40% { transform: translate(20px, 18px) scale(1.06); }
+    70% { transform: translate(-10px, -8px) scale(0.95); }
+}
+@keyframes float3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    30% { transform: translate(-25px, -20px) scale(1.03); }
+    60% { transform: translate(15px, 12px) scale(0.98); }
+}
+@keyframes float4 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    45% { transform: translate(22px, -18px) scale(1.05); }
+    75% { transform: translate(-12px, 10px) scale(0.96); }
+}
+@keyframes float5 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-14px, 20px) scale(1.1); }
+}
+
+body {
+    min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,200,170,0.2); border-radius: 20px; }
+
+.ev-page .container {
+    max-width: 1480px;
+}
+.ev-page { min-height: 100vh; }
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,200,170,0.6);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,140,50,0.15);
+    background: rgba(232,92,0,0.08);
+    transition: 0.2s ease;
+}
+.back-link:hover {
+    color: white;
+    background: rgba(232,92,0,0.18);
+}
+
+/* MAIN CARD */
+.show-card {
+    background: rgba(18, 5, 20, 0.5);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,140,50,0.12);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+/* HERO */
+.show-hero {
+    padding: 2.5rem;
+    border-bottom: 1px solid rgba(255,140,50,0.06);
+    position: relative;
+    overflow: hidden;
+    background: rgba(232,92,0,0.03);
+}
+
+.hero-glow {
+    position: absolute;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(232,92,0,0.1), transparent 70%);
+    top: -150px; right: -100px;
+    pointer-events: none;
+}
+
+/* LOGO */
+.logo-wrapper {
+    flex-shrink: 0;
+    width: 260px;
+    height: 200px;
+    border-radius: 20px;
+    background: rgba(18,5,20,0.5);
+    border: 1px solid rgba(255,140,50,0.15);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.ev-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    padding: 0;
+}
+.logo-initial {
+    font-size: 5rem;
+    font-weight: 800;
+    color: white;
+    background: linear-gradient(135deg, #e85c00, #b81c05);
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 20px;
+}
+
+/* TITLE */
+.show-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 6px 0 8px;
+    line-height: 1.2;
+}
+.show-description {
+    color: rgba(255,200,170,0.75);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin: 0;
+    max-width: 600px;
+}
+
+.meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 50px;
+    background: rgba(232,92,0,0.08);
+    border: 1px solid rgba(255,140,50,0.12);
+    color: rgba(255,200,170,0.75);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+.meta-chip svg { color: #ff8c42; flex-shrink: 0; }
+
+/* BADGES */
+.domain-badge {
+    background: rgba(232,92,0,0.15);
+    border: 1px solid rgba(255,140,50,0.3);
+    color: #ff9944;
+    padding: 4px 13px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+
+.status { padding: 4px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; }
+.status.active   { background: rgba(232,92,0,0.12);  color: #ff9944; border: 1px solid rgba(255,153,68,0.25); }
+.status.inactive { background: rgba(220,53,69,0.12);  color: #ff6b81; border: 1px solid rgba(255,107,129,0.2); }
+
+/* ACTION BUTTONS */
+.action-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 20px; border-radius: 12px;
+    font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; transition: 0.2s ease;
+    cursor: pointer; border: none;
+}
+.edit-btn {
+    background: rgba(232,92,0,0.08);
+    border: 1px solid rgba(255,140,50,0.15);
+    color: rgba(255,220,190,0.9);
+}
+.edit-btn:hover {
+    background: rgba(232,92,0,0.18);
+    border-color: #ff8c42;
+    color: white;
+}
+
+/* DETAILS SECTION */
+.details-section {
+    padding: 2.5rem;
+}
+
+.section-heading {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: rgba(255,200,170,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 1.5rem;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: rgba(18,5,20,0.35);
+    border: 1px solid rgba(255,140,50,0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.1rem 1.25rem;
+    transition: 0.2s;
+}
+.detail-item:hover {
+    background: rgba(232,92,0,0.08);
+    border-color: rgba(255,140,50,0.25);
+    transform: translateY(-2px);
+}
+
+.detail-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.detail-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,200,170,0.4);
+    margin-bottom: 4px;
+}
+.detail-value {
+    display: block;
+    font-size: 0.92rem;
+    color: rgba(255,255,255,0.95);
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* DESCRIPTION BLOCK */
+.description-block {
+    background: rgba(18,5,20,0.4);
+    border: 1px solid rgba(255,140,50,0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+}
+.description-text {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin: 0;
+    white-space: pre-line;
+}
+
+</style>
+
+<script>
+(function() {
+    const bg = document.getElementById('blobBg');
+    if (!bg) return;
+    const positions = [
+        [12,8],[25,60],[40,25],[55,80],[68,15],[75,50],[85,35],[90,70],[5,45],[50,5],[30,90],[60,55],[80,20],[15,75],[45,40]
+    ];
+    positions.forEach(([left, top]) => {
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.style.left = left + '%';
+        s.style.top = top + '%';
+        s.style.opacity = (0.2 + Math.random() * 0.5).toFixed(2);
+        s.style.animation = `float${(Math.floor(Math.random()*5)+1)} ${6+Math.random()*8}s ease-in-out infinite`;
+        s.style.animationDelay = (Math.random() * 4).toFixed(1) + 's';
+        bg.appendChild(s);
+    });
+})();
+</script>
+
 {% endblock %}
