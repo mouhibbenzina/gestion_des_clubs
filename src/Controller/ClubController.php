@@ -20,11 +20,7 @@ final class ClubController extends AbstractController
     #[Route(name: 'app_club_index', methods: ['GET'])]
     public function index(ClubRepository $repo): Response
 {
-    if ($this->isGranted('ROLE_ADMIN')) {
-        $clubs = $repo->findAll();
-    } else {
-        $clubs = $repo->findBy(['status' => 'active']);
-    }
+    $clubs = $repo->findBy(['status' => 'active']);
 
     return $this->render('club/index.html.twig', [
         'clubs' => $clubs,
@@ -32,7 +28,7 @@ final class ClubController extends AbstractController
 }
 
     #[Route('/club/new', name: 'app_club_new')]
-//#[IsGranted('ROLE_CHEF_CLUB')]
+
 public function new(Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
 {
     $club = new Club();
@@ -51,7 +47,7 @@ public function new(Request $request, EntityManagerInterface $em, SluggerInterfa
 
             try {
                 $logoFile->move(
-                    $this->getParameter('logos_directory'),  // we define this next
+                    $this->getParameter('logos_directory'),
                     $newFilename
                 );
             } catch (FileException $e) {
@@ -137,7 +133,7 @@ public function edit(Request $request, Club $club, EntityManagerInterface $entit
     }
 
     #[Route('/admin/clubs/pending', name: 'app_club_pending')]
-//#[IsGranted('ROLE_ADMIN')]
+#[IsGranted('ROLE_ADMIN')]
 public function pending(ClubRepository $repo): Response
 {
     return $this->render('club/pending.html.twig', [
@@ -146,7 +142,7 @@ public function pending(ClubRepository $repo): Response
 }
 
 #[Route('/admin/clubs/{id}/review', name: 'app_club_review', methods: ['POST'])]
-//#[IsGranted('ROLE_ADMIN')]
+#[IsGranted('ROLE_ADMIN')]
 public function review(Club $club, Request $request, EntityManagerInterface $em): Response
 {
     $action = $request->request->get('action');

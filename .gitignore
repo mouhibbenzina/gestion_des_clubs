@@ -7,6 +7,10 @@
 /public/bundles/
 /public/uploads/cv/*
 !public/uploads/cv/.gitkeep
+/public/uploads/logos/*
+!public/uploads/logos/.gitkeep
+/public/uploads/evenements/*
+!public/uploads/evenements/.gitkeep
 /var/
 /vendor/
 ###< symfony/framework-bundle ###

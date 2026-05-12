@@ -59,6 +59,12 @@ class Club
     #[ORM\OneToMany(targetEntity: ClubMember::class, mappedBy: 'club')]
     private Collection $clubMembers;
 
+    /**
+     * @var Collection<int, Recrutement>
+     */
+    #[ORM\OneToMany(targetEntity: Recrutement::class, mappedBy: 'club')]
+    private Collection $recrutements;
+
     #[ORM\Column(length: 20)]
     private ?string $code = null;
 
@@ -68,11 +74,11 @@ class Club
     #[Assert\LessThanOrEqual(200)]
     private ?int $maxMembers = null;
 
-
     public function __construct()
     {
         $this->evenements = new ArrayCollection();
         $this->clubMembers = new ArrayCollection();
+        $this->recrutements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -227,9 +233,37 @@ class Club
     public function removeClubMember(ClubMember $clubMember): static
     {
         if ($this->clubMembers->removeElement($clubMember)) {
-            // set the owning side to null (unless already changed)
             if ($clubMember->getClub() === $this) {
                 $clubMember->setClub(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Recrutement>
+     */
+    public function getRecrutements(): Collection
+    {
+        return $this->recrutements;
+    }
+
+    public function addRecrutement(Recrutement $recrutement): static
+    {
+        if (!$this->recrutements->contains($recrutement)) {
+            $this->recrutements->add($recrutement);
+            $recrutement->setClub($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRecrutement(Recrutement $recrutement): static
+    {
+        if ($this->recrutements->removeElement($recrutement)) {
+            if ($recrutement->getClub() === $this) {
+                $recrutement->setClub(null);
             }
         }
 

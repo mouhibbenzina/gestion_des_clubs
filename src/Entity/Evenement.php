@@ -50,9 +50,16 @@ class Evenement
     #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'evenement', orphanRemoval: true)]
     private Collection $participations;
 
+    /**
+     * @var Collection<int, Feedback>
+     */
+    #[ORM\OneToMany(targetEntity: Feedback::class, mappedBy: 'evenement')]
+    private Collection $feedbacks;
+
     public function __construct()
     {
         $this->participations = new ArrayCollection();
+        $this->feedbacks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -189,9 +196,37 @@ class Evenement
     public function removeParticipation(Participation $participation): static
     {
         if ($this->participations->removeElement($participation)) {
-            // set the owning side to null (unless already changed)
             if ($participation->getEvenement() === $this) {
                 $participation->setEvenement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Feedback>
+     */
+    public function getFeedbacks(): Collection
+    {
+        return $this->feedbacks;
+    }
+
+    public function addFeedback(Feedback $feedback): static
+    {
+        if (!$this->feedbacks->contains($feedback)) {
+            $this->feedbacks->add($feedback);
+            $feedback->setEvenement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFeedback(Feedback $feedback): static
+    {
+        if ($this->feedbacks->removeElement($feedback)) {
+            if ($feedback->getEvenement() === $this) {
+                $feedback->setEvenement(null);
             }
         }
 

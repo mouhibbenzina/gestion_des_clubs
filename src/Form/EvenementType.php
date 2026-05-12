@@ -22,16 +22,13 @@ class EvenementType extends AbstractType
             ->add('lieu')
             ->add('description')
             ->add('image', FileType::class, [
-                'required' => true,
+                'required' => false,
                 'mapped' => false,
             ])
             ->add('status')
-            ->add('createdAt', null, [
-                'widget' => 'single_text',
-            ])
             ->add('club', EntityType::class, [
                 'class' => Club::class,
-                'choice_label' => 'id',
+                'choice_label' => 'name',
             ])
         ;
     }
