@@ -63,7 +63,7 @@
 
                         <div class="ev-banner">
                             {% if evenement.image %}
-                                <img src="{{ asset('uploads/events/' ~ evenement.image) }}" alt="{{ evenement.nomEvenement }}">
+                                <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}" alt="{{ evenement.nomEvenement }}">
                             {% else %}
                                 <div class="default-banner">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -110,9 +110,13 @@
                                 <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" class="view-btn">
                                     Voir l'événement
                                 </a>
-                                <a href="{{ path('app_evenement_edit', {'id': evenement.id}) }}" class="ev-edit-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                                </a>
+                                <form method="post" action="{{ path('app_evenement_participate', {'id': evenement.id}) }}" style="display:contents">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('participate' ~ evenement.id) }}">
+                                    <button type="submit" class="participate-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                        Participer
+                                    </button>
+                                </form>
                             </div>
                         </div>
 
@@ -407,16 +411,22 @@ body {
 }
 .view-btn:hover { opacity: 0.92; color: white; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(232,92,0,0.45); }
 
-.ev-edit-btn {
-    display: flex; align-items: center; justify-content: center;
-    width: 38px; height: 38px; border-radius: 12px;
-    background: rgba(232,92,0,0.08);
-    border: 1px solid rgba(255,140,50,0.15);
-    color: rgba(255,200,170,0.7);
-    text-decoration: none; flex-shrink: 0;
-    transition: 0.2s ease;
+.participate-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 16px; border-radius: 12px;
+    background: rgba(25,200,100,0.1);
+    border: 1px solid rgba(25,200,100,0.2);
+    color: #6ee7a0;
+    font-weight: 600; font-size: 0.82rem;
+    cursor: pointer; font-family: inherit;
+    transition: 0.2s ease; flex-shrink: 0;
+    white-space: nowrap;
 }
-.ev-edit-btn:hover { background: rgba(232,92,0,0.18); color: white; border-color: rgba(255,140,50,0.4); }
+.participate-btn:hover {
+    background: rgba(25,200,100,0.2);
+    border-color: rgba(25,200,100,0.4);
+    color: #a7f3c0;
+}
 
 .empty-box {
     padding: 60px 20px; border-radius: 20px;

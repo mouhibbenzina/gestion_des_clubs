@@ -35,7 +35,7 @@
                     <!-- IMAGE -->
                     <div class="logo-wrapper">
                         {% if evenement.image %}
-                            <img src="{{ asset('uploads/events/' ~ evenement.image) }}"
+                            <img src="{{ asset('uploads/evenements/' ~ evenement.image) }}"
                                  alt="{{ evenement.nomEvenement }}" class="ev-logo-img">
                         {% else %}
                             <div class="logo-initial">{{ evenement.nomEvenement|slice(0,1)|upper }}</div>
