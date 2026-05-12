@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription — ISET Zaghouan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&family=Playwrite+England+Semijoined&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #060612;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #particles { position:fixed; inset:0; z-index:1; pointer-events:none; }
+
+        .orb {
+            position:fixed; border-radius:50%; filter:blur(120px);
+            opacity:0.35; pointer-events:none;
+            animation: orbFloat 18s ease-in-out infinite alternate;
+        }
+        .orb1 { width:700px; height:700px; background:radial-gradient(#7c3aed,transparent); top:-250px; left:-150px; opacity:0.45; }
+        .orb2 { width:600px; height:600px; background:radial-gradient(#c9a84c,transparent); bottom:-200px; right:-120px; animation-delay:-7s; opacity:0.4; }
+        .orb3 { width:400px; height:400px; background:radial-gradient(#0ea5e9,transparent); top:40%; left:30%; animation-delay:-4s; opacity:0.3; }
+        @keyframes orbFloat {
+            0%   { transform:translate(0,0) scale(1); }
+            33%  { transform:translate(40px,-30px) scale(1.06); }
+            66%  { transform:translate(-20px,20px) scale(0.96); }
+            100% { transform:translate(30px,40px) scale(1.04); }
+        }
+
+        .container {
+            position:relative; z-index:10;
+            display:grid; grid-template-columns:1.1fr 1fr;
+            width:960px; min-height:580px;
+            border-radius:32px; overflow:hidden;
+            border:1px solid rgba(255,255,255,0.07);
+            box-shadow:0 60px 140px rgba(0,0,0,0.7), inset 0 0 80px rgba(124,58,237,0.03);
+            animation: containerRise 1s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        @keyframes containerRise {
+            0%   { opacity:0; transform:translateY(50px) scale(0.96); }
+            100% { opacity:1; transform:none; }
+        }
+
+        .left {
+            background: linear-gradient(160deg, rgba(124,58,237,0.35) 0%, rgba(201,168,76,0.08) 100%);
+            backdrop-filter:blur(40px);
+            padding:48px 44px;
+            display:flex; flex-direction:column; justify-content:space-between;
+            border-right:1px solid rgba(255,255,255,0.06);
+            position:relative; overflow:hidden;
+        }
+        .left::before {
+            content:''; position:absolute; inset:0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(124,58,237,0.08), transparent 60%);
+            pointer-events:none;
+        }
+
+        .logo-wrap {
+            display:flex; align-items:center; gap:16px;
+            animation: slideDown 0.8s 0.2s both;
+        }
+        .logo-box {
+            width:56px; height:56px;
+            background: linear-gradient(135deg, #c9a84c, #7c3aed);
+            border-radius:16px;
+            display:flex; align-items:center; justify-content:center;
+            font-size:26px; font-weight:700; color:#fff;
+            box-shadow:0 10px 30px rgba(201,168,76,0.3);
+        }
+        .logo-text { font-family:'Playwrite England Semijoined', cursive; font-size:30px; color:#fff; line-height:1.2; }
+        .logo-text small { display:block; font-size:10px; font-family:'DM Sans', sans-serif; color:rgba(255,255,255,0.3); letter-spacing:2px; text-transform:uppercase; }
+
+        .hero {
+            flex:1; display:flex; flex-direction:column; justify-content:center;
+            padding:20px 0;
+            animation: slideUp 0.8s 0.4s both;
+        }
+        .hero h1 {
+            font-family:'Playwrite England Semijoined', cursive;
+            font-size:52px; line-height:1.1; color:#fff; margin-bottom:16px; font-weight:400;
+        }
+        .hero h1 em { font-style:italic; color:#c9a84c; display:block; }
+        .hero p { color:rgba(255,255,255,0.4); font-size:14px; line-height:1.7; max-width:380px; }
+
+        .iset-badge {
+            display:inline-flex; align-items:center; gap:10px;
+            background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
+            border-radius:50px; padding:8px 18px 8px 12px;
+            animation: slideUp 0.8s 0.6s both;
+        }
+        .iset-badge .dot {
+            width:10px; height:10px; border-radius:50%;
+            background:linear-gradient(135deg, #7c3aed, #c9a84c);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
+        .iset-badge span { color:rgba(255,255,255,0.5); font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; }
+
+        @keyframes slideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:none; } }
+        @keyframes slideUp   { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
+
+        .right {
+            background: rgba(6,6,18,0.92);
+            backdrop-filter:blur(60px);
+            padding:52px 48px;
+            display:flex; flex-direction:column; justify-content:center;
+            position:relative;
+        }
+        .right::after {
+            content:''; position:absolute; top:0; left:0; right:0; height:1px;
+            background: linear-gradient(90deg, transparent, rgba(201,168,76,0.15), transparent);
+        }
+
+        .right h2 {
+            font-family:'Playwrite England Semijoined', cursive; font-size:38px; color:#fff; margin-bottom:4px; font-weight:400;
+            animation: slideUp 0.7s 0.3s both;
+        }
+        .right .sub {
+            color:rgba(255,255,255,0.3); font-size:14px; margin-bottom:24px;
+            animation: slideUp 0.7s 0.35s both;
+        }
+
+        .alert {
+            padding:12px 16px; border-radius:12px; font-size:13px; margin-bottom:20px;
+            animation: shake 0.5s ease both;
+        }
+        .alert-error { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); color:#fca5a5; }
+        .alert-success { background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.2); color:#6ee7b7; }
+        @keyframes shake {
+            0%,100% { transform:translateX(0); }
+            20%     { transform:translateX(-8px); }
+            40%     { transform:translateX(8px); }
+            60%     { transform:translateX(-5px); }
+            80%     { transform:translateX(5px); }
+        }
+
+        .field { margin-bottom:18px; animation: slideUp 0.7s 0.4s both; }
+        .field:nth-child(2) { animation-delay:0.45s; }
+        .field:nth-child(3) { animation-delay:0.5s; }
+        .field:nth-child(4) { animation-delay:0.55s; }
+        .field:nth-child(5) { animation-delay:0.6s; }
+
+        .field label {
+            display:block; font-size:10px; font-weight:700;
+            text-transform:uppercase; letter-spacing:1.4px;
+            color:rgba(255,255,255,0.28); margin-bottom:6px;
+        }
+        .input-wrap { position:relative; }
+        .input-wrap .icon {
+            position:absolute; left:16px; top:50%; transform:translateY(-50%);
+            color:rgba(255,255,255,0.12); font-size:16px;
+            transition:color 0.3s; pointer-events:none;
+        }
+        .field input {
+            width:100%; padding:13px 18px 13px 46px;
+            background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,255,255,0.07);
+            border-radius:14px; color:#fff; font-size:15px;
+            font-family:'DM Sans', sans-serif;
+            outline:none; transition:all 0.3s;
+        }
+        .field input:focus {
+            border-color:#7c3aed; background:rgba(124,58,237,0.04);
+            box-shadow:0 0 0 4px rgba(124,58,237,0.08);
+        }
+        .field input:focus ~ .icon { color:#7c3aed; }
+        .field input::placeholder { color:rgba(255,255,255,0.1); }
+        .field input:-webkit-autofill,
+        .field input:-webkit-autofill:hover,
+        .field input:-webkit-autofill:focus {
+            -webkit-text-fill-color:#fff;
+            -webkit-box-shadow:0 0 0 1000px rgba(6,6,18,0.95) inset;
+            border-color:#7c3aed;
+        }
+
+        .row { display:flex; gap:14px; }
+        .row .field { flex:1; }
+
+        .btn-register {
+            width:100%; padding:16px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #7c3aed 100%);
+            background-size:200% 200%;
+            color:#fff; border:none; border-radius:14px;
+            font-size:15px; font-weight:700; font-family:'DM Sans', sans-serif;
+            cursor:pointer; letter-spacing:0.4px; margin-top:6px;
+            transition:all 0.35s; position:relative; overflow:hidden;
+            animation: slideUp 0.7s 0.65s both;
+        }
+        .btn-register:hover {
+            background-position:100% 100%;
+            transform:translateY(-3px);
+            box-shadow:0 16px 40px rgba(14,165,233,0.3);
+        }
+        .btn-register:active { transform:translateY(0); }
+        .btn-register::after {
+            content:''; position:absolute; inset:0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            transform:translateX(-100%);
+            transition:transform 0.6s;
+        }
+        .btn-register:hover::after { transform:translateX(100%); }
+
+        .login-link {
+            text-align:center; margin-top:20px;
+            animation: slideUp 0.7s 0.7s both;
+        }
+        .login-link a {
+            color:rgba(255,255,255,0.3); text-decoration:none;
+            font-size:13px; transition:color 0.2s;
+        }
+        .login-link a:hover { color:#c9a84c; }
+
+        .footnote {
+            text-align:center; color:rgba(255,255,255,0.12);
+            font-size:11px; margin-top:12px;
+            animation: slideUp 0.7s 0.75s both;
+        }
+
+        @media (max-width:768px) {
+            .container { grid-template-columns:1fr; width:94%; min-height:auto; }
+            .left { padding:32px 28px; min-height:260px; }
+            .right { padding:36px 28px; }
+            .hero h1 { font-size:30px; }
+            .row { flex-direction:column; gap:0; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles"></canvas>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+
+    <div class="container">
+        <div class="left">
+            <div class="logo-wrap">
+                <div class="logo-box">IZ</div>
+                <div class="logo-text">
+                    ISET Zaghouan
+                    <small>Institut Supérieur des Études Technologiques</small>
+                </div>
+            </div>
+            <div class="hero">
+                <h1>Rejoignez<br>la <em>communauté</em></h1>
+                <p>Créez votre compte et participez à la vie associative de l'ISET Zaghouan.</p>
+            </div>
+            <div class="iset-badge">
+                <div class="dot"></div>
+                <span>Inscription gratuite — 1 minute</span>
+            </div>
+        </div>
+        <div class="right">
+            <h2>Inscription</h2>
+            <p class="sub">Créez votre compte étudiant</p>
+
+            {% for label, messages in app.flashes %}
+                {% for msg in messages %}
+                    <div class="alert alert-{{ label }}">{{ msg }}</div>
+                {% endfor %}
+            {% endfor %}
+
+            <form method="post">
+                <div class="row">
+                    <div class="field">
+                        <label>Prénom</label>
+                        <div class="input-wrap">
+                            <input type="text" name="prenom" placeholder="Ahmed" autocomplete="given-name" required>
+                            <span class="icon">👤</span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Nom</label>
+                        <div class="input-wrap">
+                            <input type="text" name="nom" placeholder="Ben Salem" autocomplete="family-name" required>
+                            <span class="icon">👤</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Email</label>
+                    <div class="input-wrap">
+                        <input type="email" name="email" placeholder="ahmed@iset-zaghouan.tn" autocomplete="email" required>
+                        <span class="icon">✉</span>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Matricule <span style="color:rgba(255,255,255,0.2);">(optionnel)</span></label>
+                    <div class="input-wrap">
+                        <input type="text" name="matricule" placeholder="ET123456">
+                        <span class="icon">🆔</span>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Mot de passe</label>
+                    <div class="input-wrap">
+                        <input type="password" name="password" placeholder="••••••••" autocomplete="new-password" required>
+                        <span class="icon">🔒</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn-register">Créer mon compte →</button>
+            </form>
+
+            <div class="login-link">
+                <a href="{{ path('app_login') }}">Déjà un compte ? Connectez-vous</a>
+            </div>
+
+            <p class="footnote">© {{ 'now'|date('Y') }} ISET Zaghouan — Gestion des Clubs</p>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('particles');
+            const ctx = canvas.getContext('2d');
+            let W, H, particles = [];
+
+            function resize() {
+                W = canvas.width = window.innerWidth;
+                H = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * W;
+                    this.y = Math.random() * H;
+                    this.r = Math.random() * 2.5 + 0.5;
+                    this.dx = (Math.random() - 0.5) * 0.6;
+                    this.dy = (Math.random() - 0.5) * 0.6;
+                    this.o = Math.random() * 0.4 + 0.1;
+                }
+                update() {
+                    this.x += this.dx;
+                    this.y += this.dy;
+                    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,255,${this.o})`;
+                    ctx.fill();
+                }
+            }
+
+            const count = Math.min(80, Math.floor(W * H / 15000));
+            for (let i = 0; i < count; i++) particles.push(new Particle());
+
+            let mouse = { x: null, y: null };
+            window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+            window.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+
+            function animate() {
+                ctx.clearRect(0, 0, W, H);
+                for (let p of particles) { p.update(); p.draw(); }
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const a = particles[i], b = particles[j];
+                        const dx = a.x - b.x, dy = a.y - b.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 130) {
+                            ctx.beginPath();
+                            ctx.moveTo(a.x, a.y);
+                            ctx.lineTo(b.x, b.y);
+                            ctx.strokeStyle = `rgba(124,58,237,${0.08 * (1 - dist / 130)})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                if (mouse.x !== null) {
+                    for (let p of particles) {
+                        const dx = p.x - mouse.x, dy = p.y - mouse.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 140) {
+                            ctx.beginPath();
+                            ctx.moveTo(p.x, p.y);
+                            ctx.lineTo(mouse.x, mouse.y);
+                            ctx.strokeStyle = `rgba(14,165,233,${0.12 * (1 - dist / 140)})`;
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+    </script>
+</body>
+</html>

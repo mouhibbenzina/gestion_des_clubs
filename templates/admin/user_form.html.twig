@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel utilisateur{% endblock %}
+
+{% block body %}
+<div class="form-page py-5">
+  <div class="container">
+    <div class="form-card mx-auto">
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{{ path('admin_dashboard') }}" class="btn-back">← Retour</a>
+        <h2 class="text-white fw-bold m-0">Nouveau <span style="color:#c9a84c;">{{ role|capitalize }}</span></h2>
+      </div>
+
+      <form method="post">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Prénom</label>
+            <input type="text" name="prenom" class="form-control" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Nom</label>
+            <input type="text" name="nom" class="form-control" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Matricule</label>
+            <input type="text" name="matricule" class="form-control">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Mot de passe</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit mt-4">Créer l'utilisateur →</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  body { background:#0b0b1e; min-height:100vh; }
+  .form-card {
+    max-width:520px;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    padding: 36px;
+  }
+  .btn-back {
+    color:rgba(255,255,255,0.5); text-decoration:none;
+    font-size:0.9rem; transition:0.2s;
+  }
+  .btn-back:hover { color:white; }
+  .form-label { color:rgba(255,255,255,0.5); font-size:0.78rem; text-transform:uppercase; letter-spacing:1px; font-weight:600; margin-bottom:6px; }
+  .form-control {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; color:white; padding:12px 16px;
+    font-size:0.95rem;
+  }
+  .form-control:focus { background: rgba(255,255,255,0.08); border-color:#7b2ff7; box-shadow:0 0 0 3px rgba(123,47,247,0.15); color:white; }
+  .form-control::placeholder { color:rgba(255,255,255,0.15); }
+  .btn-submit {
+    width:100%; padding:14px; border:none; border-radius:14px;
+    background: linear-gradient(135deg, #7b2ff7, #f107a3);
+    color:white; font-weight:700; font-size:0.95rem;
+    transition:0.2s; cursor:pointer;
+  }
+  .btn-submit:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(123,47,247,0.35); }
+</style>
+{% endblock %}
