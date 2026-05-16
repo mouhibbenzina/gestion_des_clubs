@@ -126,6 +126,9 @@
               {{ event.lieu ?? 'En ligne' }} ·
               {{ event.dateDebut ? event.dateDebut|date('H:i') : '—' }}
               {% if event.dateFin %} → {{ event.dateFin|date('H:i') }}{% endif %}
+              {% if event.club %}
+                <span class="home-ev-club">{{ event.club.name }}</span>
+              {% endif %}
             </p>
           </div>
           <div class="ev-action">
@@ -399,6 +402,15 @@ body { min-height: 100vh; }
   display: flex; align-items: center; gap: 5px; margin: 0;
 }
 .ev-info p svg { flex-shrink: 0; color: #ff8c42; }
+.home-ev-club {
+    background: rgba(232,92,0,0.1);
+    border: 1px solid rgba(255,140,50,0.15);
+    color: #ff9944;
+    padding: 1px 7px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 10px;
+}
 .ev-action { margin-left: auto; flex-shrink: 0; }
 .ev-btn {
   display: inline-block; font-size: 11px; padding: 6px 14px; border-radius: 8px;

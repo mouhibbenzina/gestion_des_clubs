@@ -19,8 +19,13 @@ final class ParticipationController extends AbstractController
     #[Route(name: 'app_participation_index', methods: ['GET'])]
     public function index(ParticipationRepository $participationRepository): Response
     {
+        $user = $this->getUser();
+        $participations = $user
+            ? $participationRepository->findBy(['user' => $user], ['registeredAt' => 'DESC'])
+            : [];
+
         return $this->render('participation/index.html.twig', [
-            'participations' => $participationRepository->findAll(),
+            'participations' => $participations,
         ]);
     }
 
@@ -127,6 +132,28 @@ final class ParticipationController extends AbstractController
         }
 
         return $this->redirectToRoute('app_participation_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/presence/{status}', name: 'app_participation_presence', methods: ['POST'])]
+    public function markPresence(Participation $participation, string $status, EntityManagerInterface $entityManager): Response
+    {
+        $evenement = $participation->getEvenement();
+        $user = $this->getUser();
+        if (!$user || (!$this->isGranted('ROLE_ADMIN') && !$this->isClubPresident($user, $evenement->getClub(), $entityManager))) {
+            $this->addFlash('error', 'Accès refusé.');
+            return $this->redirectToRoute('app_evenement_show', ['id' => $evenement->getId()]);
+        }
+
+        if (!in_array($status, ['present', 'absent'])) {
+            $this->addFlash('error', 'Statut invalide.');
+            return $this->redirectToRoute('app_evenement_participants', ['id' => $evenement->getId()]);
+        }
+
+        $participation->setPresenceStatus($status);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Statut de présence mis à jour.');
+        return $this->redirectToRoute('app_evenement_participants', ['id' => $evenement->getId()]);
     }
 
     #[Route('/cancel/{eventId}', name: 'app_participation_cancel', methods: ['POST'])]

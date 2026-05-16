@@ -135,6 +135,26 @@ final class EvenementController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/participants', name: 'app_evenement_participants', methods: ['GET'])]
+    public function participants(Evenement $evenement, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if (!$user || (!$this->isGranted('ROLE_ADMIN') && !$this->isClubPresident($user, $evenement->getClub(), $entityManager))) {
+            $this->addFlash('error', 'Accès refusé.');
+            return $this->redirectToRoute('app_evenement_show', ['id' => $evenement->getId()]);
+        }
+
+        $participations = $entityManager->getRepository(Participation::class)->findBy(
+            ['evenement' => $evenement],
+            ['registeredAt' => 'ASC']
+        );
+
+        return $this->render('evenement/participants.html.twig', [
+            'evenement' => $evenement,
+            'participations' => $participations,
+        ]);
+    }
+
     #[Route('/admin/evenements/pending', name: 'app_evenement_pending')]
     public function pending(EvenementRepository $repo): Response
     {

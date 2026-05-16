@@ -66,7 +66,8 @@
 
                 <!-- ACTION BUTTONS -->
                 <div class="d-flex gap-2 mt-4 justify-content-end flex-wrap">
-    {% if is_granted('ROLE_ADMIN') %}
+    {% set isPresident = app.user and club.clubMembers|filter(m => m.user == app.user and m.role == 'President')|length > 0 %}
+    {% if is_granted('ROLE_ADMIN') or isPresident %}
         <a href="{{ path('app_club_edit', {'id': club.id}) }}" class="action-btn edit-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
                  fill="none" stroke="currentColor" stroke-width="2"
@@ -78,7 +79,7 @@
         </a>
         {{ include('club/_delete_form.html.twig') }}
     {% endif %}
-    {% if is_granted('ROLE_ADMIN') or (app.user and club.clubMembers|filter(m => m.user == app.user and m.role == 'President')|length > 0) %}
+    {% if is_granted('ROLE_ADMIN') or isPresident %}
         <a href="{{ path('app_club_manage', {'id': club.id}) }}" class="action-btn manage-btn">
             ⚙️ Gérer
         </a>
@@ -172,6 +173,40 @@
                 {% endif %}
 
             </div>
+
+            <!-- EVENTS SECTION -->
+            {% set clubEvents = club.evenements|filter(e => e.status is null or e.status not in ['pending', 'rejected']) %}
+            {% if clubEvents|length > 0 %}
+            <div class="details-section">
+                <h2 class="section-heading">Événements ({{ clubEvents|length }})</h2>
+                <div class="row g-3">
+                    {% for event in clubEvents %}
+                    <div class="col-md-4">
+                        <div class="event-card">
+                            <div class="event-date-mini">
+                                <div class="event-d">{{ event.dateDebut ? event.dateDebut|date('d') : '—' }}</div>
+                                <div class="event-m">{{ event.dateDebut ? event.dateDebut|date('M') : '' }}</div>
+                            </div>
+                            <h3 class="event-title">{{ event.nomEvenement }}</h3>
+                            <div class="event-meta">
+                                <span>{{ event.lieu }}</span>
+                                <span>{{ event.dateDebut ? event.dateDebut|date('H:i') : '—' }}</span>
+                            </div>
+                            {% set now = date() %}
+                            {% if event.dateFin and event.dateFin < now %}
+                                <span class="event-status expired">Terminé</span>
+                            {% elseif event.dateDebut and event.dateDebut > now %}
+                                <span class="event-status upcoming">À venir</span>
+                            {% else %}
+                                <span class="event-status ongoing">En cours</span>
+                            {% endif %}
+                            <a href="{{ path('app_evenement_show', {'id': event.id}) }}" class="event-link mt-2">Voir →</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
 
             <!-- RECRUTEMENTS SECTION -->
             {% set openRecrutements = club.recrutements|filter(r => r.status == 'open') %}
@@ -451,6 +486,41 @@ body {
     border-color: #a5b4fc;
     color: white;
 }
+
+/* Event cards */
+.event-card {
+    background: rgba(18,5,20,0.4);
+    border: 1px solid rgba(255,140,50,0.08);
+    border-radius: 16px;
+    padding: 1.1rem;
+    height: 100%;
+    transition: 0.2s;
+}
+.event-card:hover {
+    background: rgba(232,92,0,0.06);
+    border-color: rgba(255,140,50,0.2);
+    transform: translateY(-2px);
+}
+.event-date-mini {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(232,92,0,0.12);
+    border-radius: 10px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255,140,50,0.15);
+}
+.event-d { font-size: 1.1rem; font-weight: 800; color: white; line-height: 1; }
+.event-m { font-size: 8px; color: rgba(255,200,170,0.6); text-transform: uppercase; letter-spacing: 1px; }
+.event-title { font-size: 0.9rem; font-weight: 700; color: white; margin-bottom: 4px; }
+.event-meta { font-size: 0.75rem; color: rgba(255,200,170,0.5); display: flex; gap: 8px; margin-bottom: 6px; }
+.event-status { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 50px; }
+.event-status.expired { background: rgba(220,53,69,0.12); color: #ff6b81; border: 1px solid rgba(255,107,129,0.2); }
+.event-status.upcoming { background: rgba(100,150,255,0.12); color: #80b0ff; border: 1px solid rgba(100,150,255,0.25); }
+.event-status.ongoing { background: rgba(25,200,100,0.12); color: #6ee7a0; border: 1px solid rgba(25,200,100,0.25); }
+.event-link { display: inline-block; font-size: 0.75rem; color: #ff9944; text-decoration: none; font-weight: 600; }
+.event-link:hover { color: white; }
 
 /* Recrutement cards */
 .recrutement-card {
