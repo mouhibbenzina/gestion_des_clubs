@@ -25,10 +25,10 @@ class EvenementType extends AbstractType
                 'required' => false,
                 'mapped' => false,
             ])
-            ->add('status')
             ->add('club', EntityType::class, [
                 'class' => Club::class,
                 'choice_label' => 'name',
+                'choices' => $options['club_choices'],
             ])
         ;
     }
@@ -37,6 +37,7 @@ class EvenementType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Evenement::class,
+            'club_choices' => null,
         ]);
     }
 }

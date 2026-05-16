@@ -27,12 +27,6 @@
     </div>
 
     <div class="field-group">
-        {{ form_label(form.status) }}
-        {{ form_widget(form.status) }}
-        {{ form_errors(form.status) }}
-    </div>
-
-    <div class="field-group">
         {{ form_label(form.image) }}
         {{ form_widget(form.image) }}
         {{ form_errors(form.image) }}
@@ -52,7 +46,7 @@
 
 
     <div class="field-group--full">
-        <button type="submit" class="submit-btn">{{ button_label|default('Créer l\'événement') }}</button>
+        <button type="submit" class="submit-btn">{{ button_label|default('Proposer l\'événement') }}</button>
     </div>
 
 </div>

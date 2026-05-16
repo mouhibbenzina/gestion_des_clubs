@@ -28,10 +28,15 @@
                         Découvrez les événements organisés par les clubs étudiants.
                         Participez, apprenez et vivez des moments inoubliables.
                     </p>
-                    <div class="mt-3">
+                    <div class="mt-3 d-flex gap-3 flex-wrap">
                         <a href="{{ path('app_evenement_new') }}" class="hero-btn-primary">
-                            + Créer un événement
+                            + Proposer un événement
                         </a>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('app_evenement_pending') }}" class="hero-btn-secondary">
+                                ⏳ En attente
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="col-lg-4">
@@ -41,17 +46,42 @@
                             <div class="stat-lbl">Événements</div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-num">—</div>
+                            <div class="stat-num">{{ upcoming_count }}</div>
                             <div class="stat-lbl">À venir</div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-num">—</div>
+                            <div class="stat-num">{{ total_participants }}</div>
                             <div class="stat-lbl">Participants</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- FILTER BAR -->
+        <form method="get" class="filter-bar mb-4">
+            <div class="filter-group">
+                <label class="filter-label">Club</label>
+                <select name="club" class="filter-select" onchange="this.form.submit()">
+                    <option value="">Tous les clubs</option>
+                    {% for club in clubs %}
+                        <option value="{{ club.id }}" {{ app.request.query.get('club') == (club.id ~ '') ? 'selected' : '' }}>{{ club.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Date</label>
+                <select name="date" class="filter-select" onchange="this.form.submit()">
+                    <option value="">Toutes les dates</option>
+                    <option value="upcoming" {{ app.request.query.get('date') == 'upcoming' ? 'selected' : '' }}>À venir</option>
+                    <option value="past" {{ app.request.query.get('date') == 'past' ? 'selected' : '' }}>Passés</option>
+                    <option value="today" {{ app.request.query.get('date') == 'today' ? 'selected' : '' }}>Aujourd'hui</option>
+                </select>
+            </div>
+            {% if app.request.query.get('club') or app.request.query.get('date') %}
+                <a href="{{ path('app_evenement_index') }}" class="filter-clear">Réinitialiser</a>
+            {% endif %}
+        </form>
 
         <!-- EVENTS GRID -->
         <div class="row g-4">
@@ -77,8 +107,15 @@
                             </div>
 
                             <div class="ev-status-badge">
-                                {% if evenement.status == 'actif' or evenement.status == 'Actif' or evenement.status == true %}
-                                    <span class="status active">Actif</span>
+                                {% set now = date() %}
+                                {% if evenement.dateFin and evenement.dateFin < now %}
+                                    <span class="status expired">Terminé</span>
+                                {% elseif evenement.dateDebut and evenement.dateDebut <= now and evenement.dateFin >= now %}
+                                    <span class="status ongoing">En cours</span>
+                                {% elseif evenement.dateDebut and evenement.dateDebut|date('Y-m-d') == now|date('Y-m-d') %}
+                                    <span class="status today">Aujourd'hui</span>
+                                {% elseif evenement.dateDebut and evenement.dateDebut > now %}
+                                    <span class="status upcoming">À venir</span>
                                 {% else %}
                                     <span class="status inactive">Terminé</span>
                                 {% endif %}
@@ -86,7 +123,12 @@
                         </div>
 
                         <div class="ev-content">
-                            <h3 class="ev-title">{{ evenement.nomEvenement }}</h3>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h3 class="ev-title mb-0">{{ evenement.nomEvenement }}</h3>
+                                {% if evenement.club %}
+                                    <span class="ev-club-badge">{{ evenement.club.name }}</span>
+                                {% endif %}
+                            </div>
 
                             <div class="ev-meta">
                                 <div class="ev-meta-item">
@@ -110,13 +152,26 @@
                                 <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" class="view-btn">
                                     Voir l'événement
                                 </a>
-                                <form method="post" action="{{ path('app_evenement_participate', {'id': evenement.id}) }}" style="display:contents">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('participate' ~ evenement.id) }}">
-                                    <button type="submit" class="participate-btn">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                        Participer
-                                    </button>
-                                </form>
+                                {% if app.user and evenement.club and evenement.dateFin >= date() %}
+                                    {% if evenement.id in userParticipations %}
+                                        <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" class="registered-btn">
+                                            ✓ Inscrit
+                                        </a>
+                                    {% else %}
+                                        {% set isMember = false %}
+                                        {% for member in evenement.club.clubMembers %}
+                                            {% if member.user == app.user %}
+                                                {% set isMember = true %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% if isMember %}
+                                            <a href="{{ path('app_participation_new', {'eventId': evenement.id}) }}" class="participate-btn">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                                Participer
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
                             </div>
                         </div>
 
@@ -232,6 +287,72 @@ body {
 }
 .ev-page { min-height: 100vh; }
 
+/* ── Filter bar ── */
+.filter-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: rgba(18,5,20,0.45);
+    border: 1px solid rgba(255,140,50,0.1);
+    backdrop-filter: blur(14px);
+    border-radius: 16px;
+    padding: 16px 20px;
+}
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+}
+.filter-label {
+    color: rgba(255,200,170,0.5);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+.filter-select, .filter-input {
+    background: rgba(18,5,20,0.5);
+    border: 1px solid rgba(255,140,50,0.15);
+    border-radius: 10px;
+    padding: 9px 12px;
+    color: white;
+    font-size: 0.85rem;
+    outline: none;
+    font-family: inherit;
+    width: 100%;
+    transition: border-color 0.2s;
+}
+.filter-select:focus, .filter-input:focus {
+    border-color: #ff8c42;
+}
+.filter-select option { background: #1a0810; color: white; }
+.filter-submit {
+    padding: 9px 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #e85c00, #b81c05);
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+}
+.filter-submit:hover { opacity: 0.9; }
+.filter-clear {
+    color: rgba(255,200,170,0.5);
+    font-size: 0.8rem;
+    text-decoration: none;
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,140,50,0.1);
+    transition: 0.2s;
+    white-space: nowrap;
+}
+.filter-clear:hover { color: white; border-color: rgba(255,140,50,0.3); }
+
 /* ── Hero section ── */
 .hero-section {
     background: rgba(18, 5, 20, 0.55);
@@ -292,6 +413,20 @@ body {
     box-shadow: 0 4px 16px rgba(232,92,0,0.35);
 }
 .hero-btn-primary:hover { opacity: 0.92; color: white; transform: scale(1.02); box-shadow: 0 6px 24px rgba(232,92,0,0.5); }
+
+.hero-btn-secondary {
+    display: inline-block;
+    padding: 10px 22px;
+    border-radius: 50px;
+    background: rgba(232,92,0,0.1);
+    border: 1px solid rgba(255,140,50,0.25);
+    color: rgba(255,220,190,0.9);
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+.hero-btn-secondary:hover { background: rgba(232,92,0,0.2); color: white; }
 
 .hero-stats {
     display: flex;
@@ -367,7 +502,10 @@ body {
 }
 
 .status { padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
-.status.active { background: rgba(232,92,0,0.15); color: #ff9944; border: 1px solid rgba(255,153,68,0.25); }
+.status.expired { background: rgba(220,53,69,0.12); color: #ff6b81; border: 1px solid rgba(255,107,129,0.2); }
+.status.ongoing { background: rgba(25,200,100,0.12); color: #6ee7a0; border: 1px solid rgba(25,200,100,0.25); }
+.status.today { background: rgba(255,165,0,0.12); color: #ffbb33; border: 1px solid rgba(255,165,0,0.25); }
+.status.upcoming { background: rgba(100,150,255,0.12); color: #80b0ff; border: 1px solid rgba(100,150,255,0.25); }
 .status.inactive { background: rgba(220,53,69,0.12); color: #ff6b81; border: 1px solid rgba(255,107,129,0.2); }
 
 .ev-content {
@@ -379,8 +517,19 @@ body {
 .ev-title {
     font-weight: 700;
     font-size: 0.95rem;
-    margin-bottom: 8px;
     color: white;
+}
+
+.ev-club-badge {
+    background: rgba(232,92,0,0.1);
+    border: 1px solid rgba(255,140,50,0.2);
+    color: #ff9944;
+    padding: 2px 10px;
+    border-radius: 50px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .ev-meta { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
@@ -426,6 +575,22 @@ body {
     background: rgba(25,200,100,0.2);
     border-color: rgba(25,200,100,0.4);
     color: #a7f3c0;
+}
+
+.registered-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 16px; border-radius: 12px;
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(165,180,252,0.25);
+    color: #a5b4fc;
+    font-weight: 600; font-size: 0.82rem;
+    text-decoration: none; transition: 0.2s ease; flex-shrink: 0;
+    white-space: nowrap;
+}
+.registered-btn:hover {
+    background: rgba(99,102,241,0.2);
+    border-color: rgba(165,180,252,0.4);
+    color: #c7d2fe;
 }
 
 .empty-box {
