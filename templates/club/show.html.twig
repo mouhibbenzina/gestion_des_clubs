@@ -78,6 +78,11 @@
         </a>
         {{ include('club/_delete_form.html.twig') }}
     {% endif %}
+    {% if is_granted('ROLE_ADMIN') or (app.user and club.clubMembers|filter(m => m.user == app.user and m.role == 'President')|length > 0) %}
+        <a href="{{ path('app_club_manage', {'id': club.id}) }}" class="action-btn manage-btn">
+            ⚙️ Gérer
+        </a>
+    {% endif %}
 </div>
 
             </div>
@@ -167,6 +172,40 @@
                 {% endif %}
 
             </div>
+
+            <!-- RECRUTEMENTS SECTION -->
+            {% set openRecrutements = club.recrutements|filter(r => r.status == 'open') %}
+            {% if openRecrutements|length > 0 %}
+            <div class="details-section">
+                <h2 class="section-heading">Recrutements ouverts</h2>
+                <div class="row g-3">
+                    {% for recrutement in openRecrutements %}
+                    <div class="col-md-6">
+                        <div class="recrutement-card">
+                            <h3 class="recrutement-title">{{ recrutement.title }}</h3>
+                            {% if recrutement.description %}
+                                <p class="recrutement-desc">{{ recrutement.description }}</p>
+                            {% endif %}
+                            {% if recrutement.requirements %}
+                                <div class="recrutement-reqs">
+                                    <span class="reqs-label">Prérequis :</span>
+                                    {{ recrutement.requirements }}
+                                </div>
+                            {% endif %}
+                            {% if recrutement.deadline %}
+                                <div class="recrutement-deadline">
+                                    ⏳ Date limite : {{ recrutement.deadline|date('d/m/Y') }}
+                                </div>
+                            {% endif %}
+                            <a href="{{ path('candidature_new', {'recrutementId': recrutement.id}) }}" class="postuler-btn mt-3">
+                                Postuler →
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
 
         </div>
 
@@ -401,6 +440,73 @@ body {
     border-color: #ff8c42;
     color: white;
 }
+
+.manage-btn {
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(165,180,252,0.25);
+    color: rgba(200,190,255,0.9);
+}
+.manage-btn:hover {
+    background: rgba(99,102,241,0.2);
+    border-color: #a5b4fc;
+    color: white;
+}
+
+/* Recrutement cards */
+.recrutement-card {
+    background: rgba(18,5,20,0.4);
+    border: 1px solid rgba(255,140,50,0.08);
+    border-radius: 16px;
+    padding: 1.25rem;
+    height: 100%;
+    transition: 0.2s;
+}
+.recrutement-card:hover {
+    background: rgba(232,92,0,0.06);
+    border-color: rgba(255,140,50,0.2);
+    transform: translateY(-2px);
+}
+.recrutement-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 8px;
+}
+.recrutement-desc {
+    color: rgba(255,200,170,0.7);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+.recrutement-reqs {
+    color: rgba(255,200,170,0.6);
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+}
+.reqs-label {
+    color: rgba(255,200,170,0.4);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+}
+.recrutement-deadline {
+    color: rgba(255,200,170,0.5);
+    font-size: 0.82rem;
+}
+.postuler-btn {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #e85c00, #b81c05);
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: 0.2s ease;
+    box-shadow: 0 4px 14px rgba(232,92,0,0.3);
+}
+.postuler-btn:hover { opacity: 0.92; color: white; transform: scale(1.02); }
 
 /* DETAILS SECTION */
 .details-section {

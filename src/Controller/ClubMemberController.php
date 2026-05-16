@@ -59,6 +59,12 @@ class ClubMemberController extends AbstractController
                 return $this->redirectToRoute('app_club_join', ['id' => $id]);
             }
 
+            // check max members
+            if (count($club->getClubMembers()) >= $club->getMaxMembers()) {
+                $this->addFlash('error', 'Ce club a atteint son nombre maximum de membres.');
+                return $this->redirectToRoute('app_club_join', ['id' => $id]);
+            }
+
             $member = new ClubMember();
             $member->setUser($user);
             $member->setClub($club);

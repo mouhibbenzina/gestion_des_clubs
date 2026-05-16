@@ -3,8 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Club;
-use App\Entity\User;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -41,10 +39,6 @@ class ClubType extends AbstractType
                  'required' => false,
                  'attr' => ['placeholder' => 'Ex: CLUB2024'],
                 ])
-            ->add('proposedBy', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'nom',
-            ])
             ->add('maxMembers')
             
         ;

@@ -68,10 +68,45 @@
             </div>
         </div>
 
+        <!-- FILTER BAR -->
+        <form method="get" class="filter-bar mb-4">
+            <div class="filter-group">
+                <label class="filter-label">Recherche</label>
+                <input type="text" name="q" class="filter-input" placeholder="Rechercher un club..." value="{{ app.request.query.get('q') }}">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Domaine</label>
+                <select name="domain" class="filter-select" onchange="this.form.submit()">
+                    <option value="">Tous les domaines</option>
+                    {% for domain in domains %}
+                        <option value="{{ domain }}" {{ app.request.query.get('domain') == domain ? 'selected' : '' }}>{{ domain }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="filter-submit">Filtrer</button>
+            {% if app.request.query.get('q') or app.request.query.get('domain') %}
+                <a href="{{ path('app_club_index') }}" class="filter-clear">Réinitialiser</a>
+            {% endif %}
+        </form>
+
         <!-- CLUBS GRID -->
         <div class="row g-4">
 
             {% for club in clubs %}
+                {% set hasOpenRecrutements = false %}
+                {% for r in club.recrutements %}
+                    {% if r.status == 'open' %}
+                        {% set hasOpenRecrutements = true %}
+                    {% endif %}
+                {% endfor %}
+                {% set isFull = club.clubMembers|length >= club.maxMembers %}
+                {% set isFull = club.clubMembers|length >= club.maxMembers %}
+                {% set hasOpenRecrutements = false %}
+                {% for r in club.recrutements %}
+                    {% if r.status == 'open' %}
+                        {% set hasOpenRecrutements = true %}
+                    {% endif %}
+                {% endfor %}
 
                 <div class="col-md-4 col-lg-3">
                     <div class="club-card h-100">
@@ -89,7 +124,11 @@
                         <div class="club-content">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <h3 class="club-title">{{ club.name }}</h3>
-                                    <span class="status active">{{ club.status|title }}</span>
+                                {% if hasOpenRecrutements %}
+                                    <span class="status badge-recrute">Recrute</span>
+                                {% elseif isFull %}
+                                    <span class="status badge-complet">Complet</span>
+                                {% endif %}
                             </div>
 
                             <p class="club-description">
@@ -98,13 +137,15 @@
                                     : club.description }}
                             </p>
 
-                            {% if club.website %}
+                            {% if club.website|trim is not empty %}
                                 <a href="//{{ club.website }}" target="_blank" class="website-link">
-                                    Visiter le site
+                                    🔗 Visiter le site
                                 </a>
+                            {% else %}
+                                <div class="website-placeholder"></div>
                             {% endif %}
 
-                            <div class="mt-3 d-flex gap-2">
+                            <div class="mt-auto pt-3 d-flex gap-2">
 
                                 <a href="{{ path('app_club_show', {'id': club.id}) }}" class="view-btn">
                                     Voir le club
@@ -122,7 +163,7 @@
                                         <form method="POST" action="{{ path('app_club_leave', {'id': club.id}) }}">
                                             <button type="submit" class="leave-btn">Quitter</button>
                                         </form>
-                                    {% else %}
+                                    {% elseif not isFull %}
                                         <a href="{{ path('app_club_join', {'id': club.id}) }}" class="join-btn">
                                             Rejoindre
                                         </a>
@@ -247,6 +288,72 @@ body {
 .club-page .container {
     max-width: 1480px;
 }
+
+/* ── Filter bar ── */
+.filter-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: rgba(18,5,20,0.45);
+    border: 1px solid rgba(255,140,50,0.1);
+    backdrop-filter: blur(14px);
+    border-radius: 16px;
+    padding: 16px 20px;
+}
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+}
+.filter-label {
+    color: rgba(255,200,170,0.5);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+.filter-select, .filter-input {
+    background: rgba(18,5,20,0.5);
+    border: 1px solid rgba(255,140,50,0.15);
+    border-radius: 10px;
+    padding: 9px 12px;
+    color: white;
+    font-size: 0.85rem;
+    outline: none;
+    font-family: inherit;
+    width: 100%;
+    transition: border-color 0.2s;
+}
+.filter-select:focus, .filter-input:focus {
+    border-color: #ff8c42;
+}
+.filter-select option { background: #1a0810; color: white; }
+.filter-submit {
+    padding: 9px 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #e85c00, #b81c05);
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+}
+.filter-submit:hover { opacity: 0.9; }
+.filter-clear {
+    color: rgba(255,200,170,0.5);
+    font-size: 0.8rem;
+    text-decoration: none;
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,140,50,0.1);
+    transition: 0.2s;
+    white-space: nowrap;
+}
+.filter-clear:hover { color: white; border-color: rgba(255,140,50,0.3); }
 
 /* ── Hero section ── */
 .hero-section {
@@ -396,6 +503,9 @@ body {
     padding: 1rem;
     color: rgba(255,255,255,0.92);
     background: linear-gradient(180deg, transparent, rgba(0,0,0,0.15));
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .club-title {
@@ -409,7 +519,7 @@ body {
     color: rgba(255,200,170,0.7);
     line-height: 1.6;
     font-size: 0.82rem;
-    min-height: 52px;
+    flex: 1;
 }
 
 .status {
@@ -424,6 +534,9 @@ body {
 .status.active   { background: rgba(232,92,0,0.15);  color: #ff9944; border: 1px solid rgba(255,153,68,0.25); }
 .status.inactive { background: rgba(220,53,69,0.12); color: #ff6b81; border: 1px solid rgba(255,107,129,0.2); }
 .status.pending  { background: rgba(234,179,8,0.12); color: #facc15; border: 1px solid rgba(250,204,21,0.2); }
+.badge-recrute   { background: rgba(34,197,94,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+.badge-complet   { background: rgba(220,53,69,0.12); color: #ff6b81; border: 1px solid rgba(255,107,129,0.2); }
+.badge-code      { background: rgba(99,102,241,0.12); color: #a5b4fc; border: 1px solid rgba(165,180,252,0.25); }
 
 .website-link {
     color: rgba(255,180,120,0.8);
@@ -433,6 +546,11 @@ body {
     transition: 0.2s ease;
 }
 .website-link:hover { color: #ff9944; }
+
+/* reserves the same vertical space when there's no website link */
+.website-placeholder {
+    height: 1.25rem;
+}
 
 /* ── Buttons ── */
 .view-btn {

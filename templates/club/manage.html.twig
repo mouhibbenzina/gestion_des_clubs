@@ -1,0 +1,561 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion — {{ club.name }}{% endblock %}
+
+{% block body %}
+
+{% include 'navbar/navbar.html.twig' %}
+
+{# ── Animated blob background ── #}
+<div class="blob-bg" id="blobBg" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+    <div class="blob blob-5"></div>
+</div>
+
+<div class="manage-page py-4">
+    <div class="container">
+
+        <div class="mb-4 d-flex align-items-center gap-3 flex-wrap">
+            <a href="{{ path('app_club_show', {'id': club.id}) }}" class="back-link">
+                ← Retour au club
+            </a>
+            <span class="manage-badge">Gestion du club</span>
+        </div>
+
+        {% for flash in app.flashes('success') %}
+            <div class="alert-flash success mb-3">{{ flash }}</div>
+        {% endfor %}
+        {% for flash in app.flashes('error') %}
+            <div class="alert-flash error mb-3">{{ flash }}</div>
+        {% endfor %}
+
+        <div class="manage-grid">
+
+            {# ── LEFT COLUMN: MEMBERS + RECRUTEMENTS ── #}
+            <div class="manage-left">
+
+                <!-- MEMBRES -->
+                <div class="manage-card mb-4">
+                    <div class="card-header">
+                        <h2 class="card-title">Membres ({{ members|length }})</h2>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="manage-table">
+                            <thead>
+                                <tr>
+                                    <th>Membre</th>
+                                    <th>Rôle</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in members %}
+                                <tr>
+                                    <td>
+                                        <div class="member-info">
+                                            <div class="member-avatar">{{ member.user.nom|slice(0,1)|upper }}{{ member.user.prenom|slice(0,1)|upper }}</div>
+                                            <div>
+                                                <div class="member-name">{{ member.user.nom }} {{ member.user.prenom }}</div>
+                                                <div class="member-email">{{ member.user.email }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if member.role == 'President' %}
+                                            <span class="role-badge president">Président</span>
+                                        {% else %}
+                                            <span class="role-badge membre">Membre</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        {% if member.role != 'President' %}
+                                        <div class="d-flex gap-1 justify-content-end">
+                                            <form method="POST" action="{{ path('app_club_member_role', {'id': member.id, 'role': 'President'}) }}" class="d-inline">
+                                                <button type="submit" class="action-icon promote" title="Promouvoir président">👑</button>
+                                            </form>
+                                            <form method="POST" action="{{ path('app_club_member_remove', {'id': member.id}) }}" class="d-inline" onsubmit="return confirm('Retirer ce membre ?')">
+                                                <button type="submit" class="action-icon remove" title="Retirer">✕</button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="3" class="empty-cell">Aucun membre</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- RECRUTEMENTS -->
+                <div class="manage-card mb-4">
+                    <div class="card-header">
+                        <h2 class="card-title">Recrutements ({{ recrutements|length }})</h2>
+                        <a href="{{ path('recrutement_new') }}" class="btn-sm-primary">+ Nouveau</a>
+                    </div>
+
+                    <div class="card-body p-0">
+                        <table class="manage-table">
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Statut</th>
+                                    <th>Candidatures</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for recrutement in recrutements %}
+                                <tr>
+                                    <td>
+                                        <div class="recrutement-title">{{ recrutement.title }}</div>
+                                        {% if recrutement.deadline %}
+                                            <div class="recrutement-meta">Limite: {{ recrutement.deadline|date('d/m/Y') }}</div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if recrutement.status == 'open' %}
+                                            <span class="role-badge president">Ouvert</span>
+                                        {% else %}
+                                            <span class="role-badge membre">Fermé</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ recrutement.candidatures|length }}</td>
+                                    <td class="text-end">
+                                        <form method="POST" action="{{ path('app_recrutement_toggle', {'id': recrutement.id}) }}" class="d-inline">
+                                            <button type="submit" class="action-icon toggle" title="Ouvrir/Fermer">
+                                                {% if recrutement.status == 'open' %}🔒{% else %}🔓{% endif %}
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr><td colspan="4" class="empty-cell">Aucun recrutement</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            {# ── RIGHT COLUMN: CANDIDATURES ── #}
+            <div class="manage-right">
+                <div class="manage-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Candidatures ({{ candidatures|length }})</h2>
+                    </div>
+
+                    <div class="card-body p-0">
+                        {% for recrutement in recrutements %}
+                            {% set recrutementCandidatures = candidatures|filter(c => c.recrutement.id == recrutement.id) %}
+                            {% if recrutementCandidatures|length > 0 %}
+                            <div class="candidature-group">
+                                <div class="candidature-group-title">{{ recrutement.title }}</div>
+                                {% for c in recrutementCandidatures %}
+                                <div class="candidature-item">
+                                    <div class="candidature-top">
+                                        <div class="member-info">
+                                            <div class="member-avatar sm">{{ c.user.nom|slice(0,1)|upper }}{{ c.user.prenom|slice(0,1)|upper }}</div>
+                                            <div>
+                                                <div class="candidature-name">{{ c.user.nom }} {{ c.user.prenom }}</div>
+                                                <div class="candidature-status {{ c.status }}">{{ c.status|title }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if c.message %}
+                                        <p class="candidature-msg">{{ c.message }}</p>
+                                    {% endif %}
+                    {% if c.cvFilename %}
+                        <a href="{{ asset('uploads/cv/' ~ c.cvFilename) }}" target="_blank" class="cv-link">📄 Voir CV</a>
+                    {% endif %}
+                                    {% if c.status == 'pending' %}
+                                    <div class="d-flex gap-2 mt-2">
+                                        <form method="POST" action="{{ path('candidature_status', {'id': c.id, 'status': 'accepted'}) }}" class="d-inline">
+                                            <button type="submit" class="btn-sm-accept">Accepter</button>
+                                        </form>
+                                        <form method="POST" action="{{ path('candidature_status', {'id': c.id, 'status': 'rejected'}) }}" class="d-inline">
+                                            <button type="submit" class="btn-sm-reject">Refuser</button>
+                                        </form>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="empty-cell p-3">Aucune candidature</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<style>
+
+/* ── Animated blob background ── */
+.blob-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 70% 40%, #e84c0e 0%, #b81c05 35%, #7a0a0e 65%, #2d0520 100%);
+}
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    filter: blur(2px);
+}
+.blob-1 { width: 340px; height: 340px; background: radial-gradient(circle at 40% 35%, #ffaa00, #e85c00 55%, transparent 80%); top: -60px; right: 100px; animation: float1 9s ease-in-out infinite; }
+.blob-2 { width: 180px; height: 180px; background: radial-gradient(circle at 45% 40%, #ffd060, #ff8800 60%, transparent 80%); top: 20px; right: 330px; animation: float2 11s ease-in-out infinite; }
+.blob-3 { width: 420px; height: 360px; background: radial-gradient(circle at 50% 45%, #ff6a00 0%, #dd2200 50%, transparent 75%); bottom: -100px; right: -40px; animation: float3 13s ease-in-out infinite; }
+.blob-4 { width: 260px; height: 200px; background: radial-gradient(circle at 50% 50%, #ff4500 0%, #9e0a00 55%, transparent 80%); bottom: 20px; left: 80px; animation: float4 10s ease-in-out infinite; }
+.blob-5 { width: 90px; height: 90px; background: radial-gradient(circle at 45% 40%, #ffc040, #ff7800 60%, transparent 80%); top: 130px; right: 260px; animation: float5 7s ease-in-out infinite; }
+@keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(-18px, 22px) scale(1.04); } 66% { transform: translate(12px, -14px) scale(0.97); } }
+@keyframes float2 { 0%,100% { transform: translate(0,0) scale(1); } 40% { transform: translate(20px, 18px) scale(1.06); } 70% { transform: translate(-10px, -8px) scale(0.95); } }
+@keyframes float3 { 0%,100% { transform: translate(0,0) scale(1); } 30% { transform: translate(-25px, -20px) scale(1.03); } 60% { transform: translate(15px, 12px) scale(0.98); } }
+@keyframes float4 { 0%,100% { transform: translate(0,0) scale(1); } 45% { transform: translate(22px, -18px) scale(1.05); } 75% { transform: translate(-12px, 10px) scale(0.96); } }
+@keyframes float5 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-14px, 20px) scale(1.1); } }
+
+.sparkle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: rgba(255,255,255,0.55);
+    border-radius: 50%;
+}
+
+body { min-height: 100vh; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,200,170,0.2); border-radius: 20px; }
+
+.manage-page { min-height: 100vh; }
+.manage-page .container { max-width: 1480px; }
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,200,170,0.6);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,140,50,0.15);
+    background: rgba(232,92,0,0.08);
+    transition: 0.2s ease;
+}
+.back-link:hover { color: white; background: rgba(232,92,0,0.18); }
+
+.manage-badge {
+    background: linear-gradient(135deg, #e85c00, #b81c05);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 10px rgba(232,92,0,0.35);
+}
+
+/* ── Layout ── */
+.manage-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 1.25rem;
+    align-items: start;
+}
+@media (max-width: 992px) {
+    .manage-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Card ── */
+.manage-card {
+    background: rgba(18,5,20,0.5);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255,140,50,0.12);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255,140,50,0.06);
+}
+.card-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+.card-body { padding: 0; }
+
+/* ── Table ── */
+.manage-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.manage-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(255,200,170,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    background: rgba(18,5,20,0.3);
+    border-bottom: 1px solid rgba(255,140,50,0.06);
+}
+.manage-table td {
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.9);
+    border-bottom: 1px solid rgba(255,140,50,0.04);
+    vertical-align: middle;
+}
+.manage-table tr:last-child td { border-bottom: none; }
+.empty-cell {
+    color: rgba(255,200,170,0.3);
+    text-align: center;
+    padding: 2rem !important;
+    font-size: 0.85rem;
+}
+
+/* ── Member info ── */
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.member-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e85c00, #b81c05);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.member-avatar.sm { width: 28px; height: 28px; font-size: 0.6rem; }
+.member-name {
+    font-weight: 600;
+    color: white;
+    font-size: 0.85rem;
+}
+.member-email {
+    color: rgba(255,200,170,0.4);
+    font-size: 0.72rem;
+}
+
+/* ── Role badges ── */
+.role-badge {
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.role-badge.president { background: rgba(232,92,0,0.12); color: #ff9944; border: 1px solid rgba(255,153,68,0.25); }
+.role-badge.membre    { background: rgba(99,102,241,0.1); color: #a5b4fc; border: 1px solid rgba(165,180,252,0.2); }
+
+/* ── Action icons ── */
+.action-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px 6px;
+    border-radius: 8px;
+    transition: 0.2s;
+    opacity: 0.6;
+    line-height: 1;
+}
+.action-icon:hover { opacity: 1; background: rgba(255,255,255,0.05); }
+.action-icon.promote:hover { background: rgba(255,153,68,0.15); }
+.action-icon.remove:hover { background: rgba(255,107,129,0.15); }
+.action-icon.toggle:hover { background: rgba(165,180,252,0.15); }
+
+/* ── Buttons ── */
+.btn-sm-primary {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #e85c00, #b81c05);
+    color: white;
+    font-weight: 600;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+}
+.btn-sm-primary:hover { opacity: 0.9; }
+
+.btn-sm-accept {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(34,197,94,0.12);
+    color: #4ade80;
+    font-weight: 600;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+    border: 1px solid rgba(74,222,128,0.2);
+}
+.btn-sm-accept:hover { background: rgba(34,197,94,0.2); }
+
+.btn-sm-reject {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(220,53,69,0.12);
+    color: #ff6b81;
+    font-weight: 600;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+    border: 1px solid rgba(255,107,129,0.2);
+}
+.btn-sm-reject:hover { background: rgba(220,53,69,0.2); }
+
+/* ── Recrutement form ── */
+.recrutement-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 1rem;
+}
+.form-input {
+    background: rgba(18,5,20,0.4);
+    border: 1px solid rgba(255,140,50,0.12);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: white;
+    font-size: 0.85rem;
+    outline: none;
+    font-family: inherit;
+    transition: 0.2s;
+}
+.form-input:focus { border-color: #ff8c42; background: rgba(232,92,0,0.06); }
+.form-input::placeholder { color: rgba(255,255,255,0.25); }
+
+.recrutement-title {
+    font-weight: 600;
+    color: white;
+    font-size: 0.85rem;
+}
+.recrutement-meta {
+    color: rgba(255,200,170,0.4);
+    font-size: 0.72rem;
+    margin-top: 2px;
+}
+
+/* ── Candidatures ── */
+.candidature-group {
+    border-bottom: 1px solid rgba(255,140,50,0.06);
+}
+.candidature-group:last-child { border-bottom: none; }
+
+.candidature-group-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255,200,170,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 10px 14px;
+    background: rgba(18,5,20,0.2);
+    border-bottom: 1px solid rgba(255,140,50,0.04);
+}
+
+.candidature-item {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,140,50,0.04);
+}
+.candidature-item:last-child { border-bottom: none; }
+
+.candidature-top { margin-bottom: 6px; }
+
+.candidature-name {
+    font-weight: 600;
+    color: white;
+    font-size: 0.82rem;
+}
+.candidature-status {
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+.candidature-status.accepted { color: #4ade80; }
+.candidature-status.rejected { color: #ff6b81; }
+.candidature-status.pending  { color: #facc15; }
+
+.candidature-msg {
+    color: rgba(255,200,170,0.6);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin: 6px 0;
+    padding-left: 38px;
+}
+
+.cv-link {
+    color: rgba(165,180,252,0.8);
+    font-size: 0.78rem;
+    text-decoration: none;
+    display: inline-block;
+    padding-left: 38px;
+}
+.cv-link:hover { color: #a5b4fc; }
+
+/* ── Flash alerts ── */
+.alert-flash {
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    backdrop-filter: blur(8px);
+}
+.alert-flash.success { background: rgba(232,92,0,0.12); border: 1px solid rgba(255,153,68,0.25); color: #ff9944; }
+.alert-flash.error   { background: rgba(220,53,69,0.15); border: 1px solid rgba(255,107,129,0.3); color: #ff8a9e; }
+
+</style>
+
+<script>
+(function() {
+    const bg = document.getElementById('blobBg');
+    if (!bg) return;
+    const positions = [
+        [12,8],[25,60],[40,25],[55,80],[68,15],[75,50],[85,35],[90,70],[5,45],[50,5],[30,90],[60,55],[80,20],[15,75],[45,40]
+    ];
+    positions.forEach(([left, top]) => {
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.style.left = left + '%';
+        s.style.top = top + '%';
+        s.style.opacity = (0.2 + Math.random() * 0.5).toFixed(2);
+        s.style.animation = `float${(Math.floor(Math.random()*5)+1)} ${6+Math.random()*8}s ease-in-out infinite`;
+        s.style.animationDelay = (Math.random() * 4).toFixed(1) + 's';
+        bg.appendChild(s);
+    });
+})();
+</script>
+
+{% endblock %}

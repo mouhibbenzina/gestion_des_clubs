@@ -38,13 +38,12 @@
         {{ form_errors(form.status) }}
     </div>
 
-    
 <div class="field-group">
-    {{ form_label(form.proposedBy) }}
-    {{ form_widget(form.proposedBy) }}
-    {{ form_errors(form.proposedBy) }}
+    <label>Proposé par</label>
+    <input type="text" class="readonly-input" value="{{ app.user.prenom }} {{ app.user.nom }}" readonly>
 </div>
 
+    
 <div class="field-group">
     {{ form_label(form.code) }}
     {{ form_widget(form.code) }}
@@ -137,6 +136,19 @@
 .fields-grid textarea {
     min-height: 110px;
     resize: vertical;
+}
+
+.readonly-input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 11px 15px;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.9rem;
+    outline: none;
+    font-family: inherit;
+    cursor: not-allowed;
 }
 
 .fields-grid input[type="checkbox"] {

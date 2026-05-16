@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Club;
+use App\Entity\ClubMember;
+use App\Entity\Recrutement;
 use App\Form\ClubType;
 use App\Repository\ClubRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,18 +14,41 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Entity\ClubMember;
 
 #[Route('/club')]
 final class ClubController extends AbstractController
 {
     #[Route(name: 'app_club_index', methods: ['GET'])]
-    public function index(ClubRepository $repo): Response
+    public function index(Request $request, ClubRepository $repo, EntityManagerInterface $entityManager): Response
 {
-    $clubs = $repo->findBy(['status' => 'active']);
+    $qb = $repo->createQueryBuilder('c')
+        ->andWhere('c.status = :active')
+        ->setParameter('active', 'active');
+
+    if ($q = $request->query->get('q')) {
+        $qb->andWhere('c.name LIKE :q OR c.description LIKE :q2')
+            ->setParameter('q', "%$q%")
+            ->setParameter('q2', "%$q%");
+    }
+
+    if ($domain = $request->query->get('domain')) {
+        $qb->andWhere('c.domain = :domain')->setParameter('domain', $domain);
+    }
+
+    $qb->orderBy('c.name', 'ASC');
+
+    $domains = $entityManager->createQueryBuilder()
+        ->select('DISTINCT c2.domain')
+        ->from(Club::class, 'c2')
+        ->where('c2.status = :active')
+        ->setParameter('active', 'active')
+        ->orderBy('c2.domain', 'ASC')
+        ->getQuery()
+        ->getSingleColumnResult();
 
     return $this->render('club/index.html.twig', [
-        'clubs' => $clubs,
+        'clubs' => $qb->getQuery()->getResult(),
+        'domains' => $domains,
     ]);
 }
 
@@ -57,6 +82,7 @@ public function new(Request $request, EntityManagerInterface $em, SluggerInterfa
             $club->setLogo($newFilename);
         }
 
+        $club->setProposedBy($this->getUser());
         $club->setStatus('pending');
         $club->setCreatedAt(new \DateTimeImmutable());
         $em->persist($club);
@@ -85,6 +111,12 @@ public function new(Request $request, EntityManagerInterface $em, SluggerInterfa
    #[Route('/{id}/edit', name: 'app_club_edit', methods: ['GET', 'POST'])]
 public function edit(Request $request, Club $club, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
 {
+    $user = $this->getUser();
+    if (!$user || (!$this->isGranted('ROLE_ADMIN') && !$this->isClubPresident($user, $club, $entityManager))) {
+        $this->addFlash('error', 'Vous n\'avez pas les droits pour modifier ce club.');
+        return $this->redirectToRoute('app_club_index');
+    }
+
     $form = $this->createForm(ClubType::class, $club);
     $form->handleRequest($request);
 
@@ -107,7 +139,7 @@ public function edit(Request $request, Club $club, EntityManagerInterface $entit
                 $club->setLogo($newFilename); 
                 
             } catch (FileException $e) {
-                console.log('Error uploading file: ' . $e->getMessage());
+                $this->addFlash('error', 'Erreur lors de l\'upload du logo.');
             }
         }
         $entityManager->flush();
@@ -119,6 +151,132 @@ public function edit(Request $request, Club $club, EntityManagerInterface $entit
         'club' => $club,
         'form' => $form,
     ]);
+}
+
+    #[Route('/{id}/manage', name: 'app_club_manage', methods: ['GET'])]
+    public function manage(Club $club, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        if (!$user || (!$this->isGranted('ROLE_ADMIN') && !$this->isClubPresident($user, $club, $em))) {
+            $this->addFlash('error', 'Accès refusé.');
+            return $this->redirectToRoute('app_club_show', ['id' => $club->getId()]);
+        }
+
+        $candidatures = $em->createQueryBuilder()
+            ->select('c')
+            ->from(\App\Entity\Candidature::class, 'c')
+            ->join('c.recrutement', 'r')
+            ->where('r.club = :club')
+            ->orderBy('c.submittedAt', 'DESC')
+            ->setParameter('club', $club)
+            ->getQuery()
+            ->getResult();
+
+        return $this->render('club/manage.html.twig', [
+            'club' => $club,
+            'members' => $club->getClubMembers(),
+            'recrutements' => $club->getRecrutements(),
+            'candidatures' => $candidatures,
+        ]);
+    }
+
+    #[Route('/{id}/manage/recrutement', name: 'app_club_recrutement_new', methods: ['POST'])]
+    public function newRecrutement(Request $request, Club $club, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        if (!$user || (!$this->isGranted('ROLE_ADMIN') && !$this->isClubPresident($user, $club, $em))) {
+            $this->addFlash('error', 'Accès refusé.');
+            return $this->redirectToRoute('app_club_show', ['id' => $club->getId()]);
+        }
+
+        $recrutement = new Recrutement();
+        $recrutement->setClub($club);
+        $recrutement->setTitle($request->request->get('title'));
+        $recrutement->setDescription($request->request->get('description'));
+        $recrutement->setRequirements($request->request->get('requirements'));
+        $recrutement->setStatus('open');
+
+        $deadline = $request->request->get('deadline');
+        if ($deadline) {
+            $recrutement->setDeadline(new \DateTime($deadline));
+        }
+
+        $em->persist($recrutement);
+        $em->flush();
+
+        $this->addFlash('success', 'Offre de recrutement créée.');
+        return $this->redirectToRoute('app_club_manage', ['id' => $club->getId()]);
+    }
+
+    #[Route('/recrutement/{id}/toggle', name: 'app_recrutement_toggle', methods: ['POST'])]
+    public function toggleRecrutement(Recrutement $recrutement, EntityManagerInterface $em): Response
+    {
+        $club = $recrutement->getClub();
+        $user = $this->getUser();
+        if (!$user || (!$this->isGranted('ROLE_ADMIN') && !$this->isClubPresident($user, $club, $em))) {
+            $this->addFlash('error', 'Accès refusé.');
+            return $this->redirectToRoute('app_club_show', ['id' => $club->getId()]);
+        }
+
+        $recrutement->setStatus($recrutement->getStatus() === 'open' ? 'closed' : 'open');
+        $em->flush();
+
+        $this->addFlash('success', 'Statut du recrutement mis à jour.');
+        return $this->redirectToRoute('app_club_manage', ['id' => $club->getId()]);
+    }
+
+    #[Route('/member/{id}/role/{role}', name: 'app_club_member_role', methods: ['POST'])]
+    public function changeMemberRole(ClubMember $member, string $role, EntityManagerInterface $em): Response
+    {
+        $club = $member->getClub();
+        $user = $this->getUser();
+        if (!$user || (!$this->isGranted('ROLE_ADMIN') && !$this->isClubPresident($user, $club, $em))) {
+            $this->addFlash('error', 'Accès refusé.');
+            return $this->redirectToRoute('app_club_show', ['id' => $club->getId()]);
+        }
+
+        if (!in_array($role, ['President', 'membre'])) {
+            $this->addFlash('error', 'Rôle invalide.');
+            return $this->redirectToRoute('app_club_manage', ['id' => $club->getId()]);
+        }
+
+        $member->setRole($role);
+        $em->flush();
+
+        $this->addFlash('success', 'Rôle mis à jour.');
+        return $this->redirectToRoute('app_club_manage', ['id' => $club->getId()]);
+    }
+
+    #[Route('/member/{id}/remove', name: 'app_club_member_remove', methods: ['POST'])]
+    public function removeMember(ClubMember $member, EntityManagerInterface $em): Response
+    {
+        $club = $member->getClub();
+        $user = $this->getUser();
+        if (!$user || (!$this->isGranted('ROLE_ADMIN') && !$this->isClubPresident($user, $club, $em))) {
+            $this->addFlash('error', 'Accès refusé.');
+            return $this->redirectToRoute('app_club_show', ['id' => $club->getId()]);
+        }
+
+        if ($member->getRole() === 'President') {
+            $this->addFlash('error', 'Impossible de retirer le président.');
+            return $this->redirectToRoute('app_club_manage', ['id' => $club->getId()]);
+        }
+
+        $em->remove($member);
+        $em->flush();
+
+        $this->addFlash('success', 'Membre retiré du club.');
+        return $this->redirectToRoute('app_club_manage', ['id' => $club->getId()]);
+    }
+
+private function isClubPresident($user, Club $club, EntityManagerInterface $em): bool
+{
+    $member = $em->getRepository(ClubMember::class)->findOneBy([
+        'user' => $user,
+        'club' => $club,
+        'role' => 'President',
+    ]);
+    return $member !== null;
 }
 
     #[Route('/{id}', name: 'app_club_delete', methods: ['POST'])]
