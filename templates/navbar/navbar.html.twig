@@ -64,6 +64,7 @@
     <a href="{{ path('app_home') }}" class="nav-link{% if app.request.attributes.get('_route') == 'app_home' %} active{% endif %}">Accueil</a>
     <a href="{{ path('app_club_index') }}" class="nav-link{% if app.request.attributes.get('_route') starts with 'app_club' %} active{% endif %}">Clubs</a>
     <a href="{{ path('app_evenement_index') }}" class="nav-link{% if app.request.attributes.get('_route') starts with 'app_evenement' %} active{% endif %}">Événements</a>
+    <a href="{{ path('recrutement_index') }}" class="nav-link{% if app.request.attributes.get('_route') starts with 'recrutement' %} active{% endif %}">Recrutements</a>
   </div>
 
   <div class="nav-right">

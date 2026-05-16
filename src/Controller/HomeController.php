@@ -21,7 +21,7 @@ class HomeController extends AbstractController
     ): Response {
         $activeClubs = $clubRepo->findBy(['status' => 'active']);
         $upcomingEvents = $eventRepo->findBy([], ['dateDebut' => 'ASC']);
-        $openRecruitments = $recrutementRepo->findBy(['status' => 'ouverte']);
+        $openRecruitments = $recrutementRepo->findBy(['status' => 'open']);
         $totalUsers = count($userRepo->findAll());
 
         return $this->render('home/index.html.twig', [
