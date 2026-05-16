@@ -1,11 +1,338 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Participation{% endblock %}
+{% block title %}Participer à {{ evenement.nomEvenement }}{% endblock %}
 
 {% block body %}
-    <h1>Create new Participation</h1>
 
-    {{ include('participation/_form.html.twig') }}
+{% include 'navbar/navbar.html.twig' %}
 
-    <a href="{{ path('app_participation_index') }}">back to list</a>
+<div class="blob-bg" id="blobBg" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+    <div class="blob blob-5"></div>
+</div>
+
+<div class="create-page py-4">
+    <div class="container-wide">
+
+        <div class="mb-4">
+            <a href="{{ path('app_evenement_show', {'id': evenement.id}) }}" class="back-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                Retour à l'événement
+            </a>
+        </div>
+
+        <div class="form-card">
+
+            <div class="form-left">
+                <div class="form-left-inner">
+                    <span class="form-badge">Participation</span>
+                    <h1 class="form-title">Participer à l'événement</h1>
+                    <p class="form-subtitle">Vous êtes sur le point de vous inscrire à <strong>{{ evenement.nomEvenement }}</strong> organisé par <strong>{{ evenement.club ? evenement.club.name : '—' }}</strong>.</p>
+                    <div class="left-info">
+                        <div class="info-item">
+                            <span class="info-icon">✦</span>
+                            <span>Votre inscription sera confirmée immédiatement</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">✦</span>
+                            <span>Un rappel vous sera envoyé avant l'événement</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">✦</span>
+                            <span>Vous pouvez ajouter un message optionnel</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="deco-circle c1"></div>
+                <div class="deco-circle c2"></div>
+            </div>
+
+            <div class="form-right">
+                {{ include('participation/_form.html.twig', {'button_label': 'Confirmer ma participation'}) }}
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<style>
+
+.blob-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 70% 40%, #e84c0e 0%, #b81c05 35%, #7a0a0e 65%, #2d0520 100%);
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    filter: blur(2px);
+}
+
+.blob-1 {
+    width: 340px; height: 340px;
+    background: radial-gradient(circle at 40% 35%, #ffaa00, #e85c00 55%, transparent 80%);
+    top: -60px; right: 100px;
+    animation: float1 9s ease-in-out infinite;
+}
+.blob-2 {
+    width: 180px; height: 180px;
+    background: radial-gradient(circle at 45% 40%, #ffd060, #ff8800 60%, transparent 80%);
+    top: 20px; right: 330px;
+    animation: float2 11s ease-in-out infinite;
+}
+.blob-3 {
+    width: 420px; height: 360px;
+    background: radial-gradient(circle at 50% 45%, #ff6a00 0%, #dd2200 50%, transparent 75%);
+    bottom: -100px; right: -40px;
+    animation: float3 13s ease-in-out infinite;
+}
+.blob-4 {
+    width: 260px; height: 200px;
+    background: radial-gradient(circle at 50% 50%, #ff4500 0%, #9e0a00 55%, transparent 80%);
+    bottom: 20px; left: 80px;
+    animation: float4 10s ease-in-out infinite;
+}
+.blob-5 {
+    width: 90px; height: 90px;
+    background: radial-gradient(circle at 45% 40%, #ffc040, #ff7800 60%, transparent 80%);
+    top: 130px; right: 260px;
+    animation: float5 7s ease-in-out infinite;
+}
+
+@keyframes float1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(-18px, 22px) scale(1.04); }
+    66% { transform: translate(12px, -14px) scale(0.97); }
+}
+@keyframes float2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    40% { transform: translate(20px, 18px) scale(1.06); }
+    70% { transform: translate(-10px, -8px) scale(0.95); }
+}
+@keyframes float3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    30% { transform: translate(-25px, -20px) scale(1.03); }
+    60% { transform: translate(15px, 12px) scale(0.98); }
+}
+@keyframes float4 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    45% { transform: translate(22px, -18px) scale(1.05); }
+    75% { transform: translate(-12px, 10px) scale(0.96); }
+}
+@keyframes float5 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(-14px, 20px) scale(1.1); }
+}
+
+body {
+    min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,200,170,0.2); border-radius: 20px; }
+
+.create-page { min-height: 100vh; }
+
+.container-wide {
+    width: 92%;
+    max-width: 1480px;
+    margin: 0 auto;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,200,170,0.6);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,140,50,0.15);
+    background: rgba(232,92,0,0.08);
+    transition: 0.2s ease;
+}
+.back-btn:hover { color: white; background: rgba(232,92,0,0.18); }
+
+.form-card {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    background: rgba(18, 5, 20, 0.5);
+    border: 1px solid rgba(255,140,50,0.12);
+    backdrop-filter: blur(18px);
+    border-radius: 24px;
+    overflow: hidden;
+    min-height: 400px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+}
+
+.form-left {
+    background: rgba(232,92,0,0.12);
+    border-right: 1px solid rgba(255,140,50,0.1);
+    padding: 50px 36px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-left-inner { position: relative; z-index: 2; }
+
+.deco-circle { position: absolute; border-radius: 50%; pointer-events: none; z-index: 1; }
+.c1 { width: 260px; height: 260px; background: rgba(232,92,0,0.1); bottom: -80px; right: -80px; }
+.c2 { width: 160px; height: 160px; background: rgba(184,28,5,0.15); top: -50px; left: -50px; }
+
+.form-badge {
+    background: linear-gradient(135deg, #e85c00, #b81c05);
+    color: white;
+    padding: 7px 18px;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: inline-block;
+    box-shadow: 0 2px 10px rgba(232,92,0,0.35);
+}
+
+.form-title {
+    color: white;
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-top: 16px;
+    margin-bottom: 0;
+}
+
+.form-subtitle {
+    color: rgba(255,200,170,0.55);
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin-top: 12px;
+}
+.form-subtitle strong { color: rgba(255,255,255,0.85); }
+
+.left-info { margin-top: 32px; display: flex; flex-direction: column; gap: 14px; }
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: rgba(255,200,170,0.6);
+    line-height: 1.5;
+}
+
+.info-icon { color: #ff8c42; flex-shrink: 0; margin-top: 1px; }
+
+.form-right {
+    padding: 44px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-right label {
+    color: rgba(255,200,170,0.65) !important;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.form-right textarea {
+    width: 100%;
+    background: rgba(18,5,20,0.4);
+    border: 1px solid rgba(255,140,50,0.15);
+    border-radius: 12px;
+    padding: 11px 15px;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    font-family: inherit;
+    min-height: 110px;
+    resize: vertical;
+}
+
+.form-right textarea:focus {
+    border-color: #ff8c42;
+    background: rgba(232,92,0,0.08);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #e85c00, #b81c05);
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+    letter-spacing: 0.5px;
+    margin-top: 16px;
+    box-shadow: 0 4px 16px rgba(232,92,0,0.35);
+}
+
+.submit-btn:hover {
+    opacity: 0.92;
+    transform: scale(1.01);
+    box-shadow: 0 6px 24px rgba(232,92,0,0.5);
+}
+
+.event-info {
+    background: rgba(18,5,20,0.4);
+    border: 1px solid rgba(255,140,50,0.1);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.event-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.85rem;
+    color: rgba(255,200,170,0.7);
+}
+
+.event-info-item span:first-child { color: rgba(255,200,170,0.4); }
+.event-info-item span:last-child { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+</style>
+
+<script>
+(function() {
+    const bg = document.getElementById('blobBg');
+    if (!bg) return;
+    const positions = [
+        [12,8],[25,60],[40,25],[55,80],[68,15],[75,50],[85,35],[90,70],[5,45],[50,5],[30,90],[60,55],[80,20],[15,75],[45,40]
+    ];
+    positions.forEach(([left, top]) => {
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.style.left = left + '%';
+        s.style.top = top + '%';
+        s.style.opacity = (0.2 + Math.random() * 0.5).toFixed(2);
+        s.style.animation = `float${(Math.floor(Math.random()*5)+1)} ${6+Math.random()*8}s ease-in-out infinite`;
+        s.style.animationDelay = (Math.random() * 4).toFixed(1) + 's';
+        bg.appendChild(s);
+    });
+})();
+</script>
+
 {% endblock %}

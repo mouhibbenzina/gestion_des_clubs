@@ -1,4 +1,24 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+
+<div class="event-info">
+    <div class="event-info-item">
+        <span>Événement</span>
+        <span>{{ evenement.nomEvenement }}</span>
+    </div>
+    <div class="event-info-item">
+        <span>Club</span>
+        <span>{{ evenement.club ? evenement.club.name : '—' }}</span>
+    </div>
+    <div class="event-info-item">
+        <span>Date</span>
+        <span>{{ evenement.dateDebut ? evenement.dateDebut|date('d/m/Y H:i') : '—' }}</span>
+    </div>
+    <div class="event-info-item">
+        <span>Lieu</span>
+        <span>{{ evenement.lieu }}</span>
+    </div>
+</div>
+
+<button type="submit" class="submit-btn">{{ button_label|default('Confirmer ma participation') }}</button>
+
 {{ form_end(form) }}

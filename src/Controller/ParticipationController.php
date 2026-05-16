@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\ClubMember;
+use App\Entity\Evenement;
 use App\Entity\Participation;
 use App\Form\ParticipationType;
 use App\Repository\ParticipationRepository;
@@ -25,19 +27,67 @@ final class ParticipationController extends AbstractController
     #[Route('/new', name: 'app_participation_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté pour participer.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        $eventId = $request->query->get('eventId');
+        $evenement = $eventId ? $entityManager->getRepository(Evenement::class)->find($eventId) : null;
+
+        if (!$evenement) {
+            $this->addFlash('error', 'Événement introuvable.');
+            return $this->redirectToRoute('app_evenement_index');
+        }
+
+        $club = $evenement->getClub();
+        if (!$club) {
+            $this->addFlash('error', 'Cet événement n\'est associé à aucun club.');
+            return $this->redirectToRoute('app_evenement_index');
+        }
+
+        $isMember = $entityManager->getRepository(ClubMember::class)->findOneBy([
+            'user' => $user,
+            'club' => $club,
+        ]);
+
+        if (!$isMember) {
+            $this->addFlash('error', 'Vous devez être membre du club organisateur pour participer à cet événement.');
+            return $this->redirectToRoute('app_evenement_index');
+        }
+
+        $existing = $entityManager->getRepository(Participation::class)->findOneBy([
+            'user' => $user,
+            'evenement' => $evenement,
+        ]);
+
+        if ($existing) {
+            $this->addFlash('warning', 'Vous participez déjà à cet événement.');
+            return $this->redirectToRoute('app_evenement_show', ['id' => $evenement->getId()]);
+        }
+
         $participation = new Participation();
+        $participation->setUser($user);
+        $participation->setEvenement($evenement);
+
         $form = $this->createForm(ParticipationType::class, $participation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $participation->setRegisteredAt(new \DateTimeImmutable());
+            $participation->setPresenceStatus('inscrit');
+
             $entityManager->persist($participation);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_participation_index', [], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'Vous êtes inscrit à l\'événement !');
+            return $this->redirectToRoute('app_evenement_show', ['id' => $evenement->getId()]);
         }
 
         return $this->render('participation/new.html.twig', [
             'participation' => $participation,
+            'evenement' => $evenement,
             'form' => $form,
         ]);
     }
@@ -77,5 +127,41 @@ final class ParticipationController extends AbstractController
         }
 
         return $this->redirectToRoute('app_participation_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/cancel/{eventId}', name: 'app_participation_cancel', methods: ['POST'])]
+    public function cancel(int $eventId, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $evenement = $entityManager->getRepository(Evenement::class)->find($eventId);
+        if (!$evenement) {
+            $this->addFlash('error', 'Événement introuvable.');
+            return $this->redirectToRoute('app_evenement_index');
+        }
+
+        if ($evenement->getDateDebut() <= new \DateTime()) {
+            $this->addFlash('error', 'Impossible d\'annuler : l\'événement a déjà commencé.');
+            return $this->redirectToRoute('app_evenement_show', ['id' => $eventId]);
+        }
+
+        $participation = $entityManager->getRepository(Participation::class)->findOneBy([
+            'user' => $user,
+            'evenement' => $evenement,
+        ]);
+
+        if (!$participation) {
+            $this->addFlash('warning', 'Vous n\'êtes pas inscrit à cet événement.');
+            return $this->redirectToRoute('app_evenement_show', ['id' => $eventId]);
+        }
+
+        $entityManager->remove($participation);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Participation annulée.');
+        return $this->redirectToRoute('app_evenement_show', ['id' => $eventId]);
     }
 }
