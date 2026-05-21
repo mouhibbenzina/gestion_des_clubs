@@ -139,7 +139,12 @@ final class ParticipationController extends AbstractController
     {
         $evenement = $participation->getEvenement();
         $user = $this->getUser();
-        if (!$user || (!$this->isGranted('ROLE_ADMIN') && !$this->isClubPresident($user, $evenement->getClub(), $entityManager))) {
+        $isPresident = $user && $evenement->getClub() && $entityManager->getRepository(ClubMember::class)->findOneBy([
+            'user' => $user,
+            'club' => $evenement->getClub(),
+            'role' => 'President',
+        ]);
+        if (!$user || (!$this->isGranted('ROLE_ADMIN') && !$isPresident)) {
             $this->addFlash('error', 'Accès refusé.');
             return $this->redirectToRoute('app_evenement_show', ['id' => $evenement->getId()]);
         }
