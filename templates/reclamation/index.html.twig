@@ -10,7 +10,7 @@
         {% for r in reclamations %}
         <tr>
             <td>{{ r.subject }}</td>
-            <td>{{ r.user.firstname }} {{ r.user.lastname }}</td>
+            <td>{{ r.user.prenom }} {{ r.user.nom }}</td>
             <td><span class="badge bg-{{ r.status == 'closed' ? 'success' : (r.status == 'processed' ? 'info' : 'warning') }}">{{ r.status }}</span></td>
             <td>{{ r.createdAt|date('d/m/Y') }}</td>
             <td>

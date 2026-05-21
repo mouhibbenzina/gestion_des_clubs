@@ -8,7 +8,7 @@
         <tbody>
         {% for f in feedbacks %}
         <tr>
-            <td>{{ f.user.firstname }} {{ f.user.lastname }}</td>
+            <td>{{ f.user.prenom }} {{ f.user.nom }}</td>
             <td>{{ f.evenement.nomEvenement }}</td>
             <td>{{ f.rating }}/5</td>
             <td>{{ f.content }}</td>
